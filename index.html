@@ -187,7 +187,14 @@ main{max-width:860px;margin:30px auto;padding:0 16px;display:flex;flex-direction
   <!-- CATÉGORIE PILLS -->
   <div class="fsec">
     <span class="flabel">Catégorie <span style="font-size:10px;color:#999;font-weight:400;text-transform:none;">(optionnel — filtre la désignation)</span></span>
-    <div class="pills" id="catPills"></div>
+    <div class="pills" id="catPills">
+      <button class="pill" data-val="Ensemble motopropulseur">⚙️ Motopropulseur</button>
+      <button class="pill" data-val="Transmission">🔧 Transmission</button>
+      <button class="pill" data-val="Trains roulants">🛞 Trains roulants</button>
+      <button class="pill" data-val="Carrosserie">🚗 Carrosserie</button>
+      <button class="pill" data-val="Chauffage-Ventilation-Climatiseur">❄️ Chauffage / Clim</button>
+      <button class="pill" data-val="Equipement electrique">⚡ Équip. électrique</button>
+    </div>
   </div>
 
   <!-- DÉSIGNATION PIÈCE — searchable select identique Kulanz -->
@@ -276,24 +283,9 @@ function hl(text, q){
 // ── État ──────────────────────────────────────────────────────────────────────
 let selMarque = "", selCat = "", selCode = null, selLib = "", selRub = "";
 
-// ── Catégorie pills ───────────────────────────────────────────────────────────
-const CAT_META = {
-  'Ensemble motopropulseur':          {ico:'⚙️', short:'Motopropulseur'},
-  'Transmission':                     {ico:'🔧', short:'Transmission'},
-  'Trains roulants':                  {ico:'🛞', short:'Trains roulants'},
-  'Carrosserie':                      {ico:'🚗', short:'Carrosserie'},
-  'Chauffage-Ventilation-Climatiseur':{ico:'❄️', short:'Chauffage / Clim'},
-  'Equipement electrique':            {ico:'⚡', short:'Équip. électrique'},
-};
-const allCats = [...new Set(DOM_DATA.map(r=>r.Categorie))];
-const catPillsEl = document.getElementById("catPills");
-allCats.forEach(cat => {
-  const m = CAT_META[cat] || {ico:"•", short:cat};
-  const btn = document.createElement("button");
-  btn.className="pill"; btn.dataset.val=cat;
-  btn.innerHTML=`<span>${m.ico}</span>${m.short}`;
-  btn.onclick=()=>togglePill("cat", cat);
-  catPillsEl.appendChild(btn);
+// ── Catégorie pills — onclick ─────────────────────────────────────────────────
+document.querySelectorAll("#catPills .pill").forEach(btn=>{
+  btn.onclick=()=>togglePill("cat", btn.dataset.val);
 });
 
 // Marque pills
