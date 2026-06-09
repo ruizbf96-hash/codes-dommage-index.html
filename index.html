@@ -108,6 +108,7 @@
     <div class="cbCode" id="cbCode">—</div>
     <div class="cbLib" id="cbLib"></div>
     <div class="cbRub" id="cbRub"></div>
+    <button class="cbCopy" id="cbCopy" onclick="copyCode()">⎘ Copier</button>
   </div>
   <div class="ficheCard" id="ficheCard">
     <h3>📄 Début du nom de fiche GBS Garantie</h3>
@@ -131,8 +132,8 @@ function togglePill(type,val){
   var gid=type==="marque"?"#marquePills":"#catPills";
   var cur=type==="marque"?selMarque:selCat;
   document.querySelectorAll(gid+" .pill").forEach(function(p){p.classList.remove("active");});
-  if(cur===val){if(type==="marque")selMarque="";else{selCat="";if(selCode)clearDom();}}
-  else{document.querySelector(gid+' .pill[data-val="'+CSS.escape(val)+'"]').classList.add("active");if(type==="marque"){selMarque=val;updateFiche();}else{selCat=val;if(selCode)clearDom();}}
+  if(cur===val){if(type==="marque")selMarque="";else selCat="";}
+  else{document.querySelector(gid+' .pill[data-val="'+CSS.escape(val)+'"]').classList.add("active");if(type==="marque"){selMarque=val;updateFiche();}else selCat=val;}
   if(document.getElementById("dom-wrap").classList.contains("open")){buildOptions(document.getElementById("dom-search").value);}
 }
 function toggleDropdown(){
@@ -182,8 +183,18 @@ function afficherCode(){
   document.getElementById("cbLib").textContent=selLib;
   document.getElementById("cbRub").textContent=selRub;
   document.getElementById("codeBox").classList.add("show");
+  document.getElementById("cbCopy").textContent="⎘ Copier";
+  document.getElementById("cbCopy").classList.remove("ok");
   updateFiche();
   setTimeout(function(){document.getElementById("ficheCard").scrollIntoView({behavior:"smooth",block:"nearest"});},100);
+}
+function copyCode(){
+  navigator.clipboard.writeText(String(selCode)).then(function(){
+    document.getElementById("cbCopy").textContent="✓ Copié !";
+    document.getElementById("cbCopy").classList.add("ok");
+    showToast("✓ Code "+selCode+" copié !");
+    setTimeout(function(){document.getElementById("cbCopy").textContent="⎘ Copier";document.getElementById("cbCopy").classList.remove("ok");},2000);
+  });
 }
 var MARQUE_MAP={VW:"VW",Audi:"AU",SEAT:"SE",SKODA:"SK",VU:"VU"};
 function updateFiche(){
