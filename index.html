@@ -202,9 +202,10 @@ main{max-width:860px;margin:30px auto;padding:0 16px;display:flex;flex-direction
     <span class="flabel">Désignation pièce <span style="color:#e53e3e;">*</span></span>
     <div class="searchable-select-wrap" id="dom-wrap">
       <input type="text" class="searchable-select-input" id="dom-input"
-        placeholder="🔍 Saisissez la désignation pièce pour avoir le code dommage…"
+        placeholder="🔍 Cliquez pour chercher une désignation pièce…"
         readonly
         onclick="toggleDropdown('dom')"
+        onkeydown="if(event.key==='Enter'||event.key===' ')toggleDropdown('dom')"
         autocomplete="off">
       <div class="searchable-dropdown" id="dom-dropdown">
         <input type="text" class="searchable-search" id="dom-search"
@@ -323,7 +324,7 @@ function toggleDropdown(id){
     const search = document.getElementById(id+"-search");
     search.value = "";
     buildOptions("");
-    setTimeout(()=>search.focus(), 30);
+    setTimeout(()=>search.focus(), 80);
   }
 }
 
@@ -391,6 +392,7 @@ function selectionnerOption(code, libelle, rubrique, categorie){
 
   // Auto-activer la catégorie correspondante si aucune sélectionnée
   if(!selCat){
+    selCat = categorie;
     document.querySelectorAll("#catPills .pill").forEach(p=>{
       p.classList.toggle("active", p.dataset.val===categorie);
     });
