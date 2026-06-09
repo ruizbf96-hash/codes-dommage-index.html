@@ -60,6 +60,23 @@
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--vert);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.2);transition:transform .3s;z-index:100;}
   .toast.show{transform:translateX(-50%) translateY(0);}
   .loading{text-align:center;padding:40px;color:var(--mut);}
+  .quick{margin-bottom:18px;}
+  .quick-title{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .quick-chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border:1.5px solid var(--bord);background:#fff;border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s;}
+  .chip:hover{border-color:var(--accent);background:#e8f4fd;}
+  .chip .chip-code{font-weight:700;color:var(--bleu);}
+  .chip .chip-lib{color:var(--txt);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .chip .chip-x{color:var(--mut);font-size:15px;line-height:1;opacity:.6;}
+  .chip .chip-x:hover{opacity:1;color:#e53e3e;}
+  .opt-actions{display:flex;align-items:center;gap:4px;}
+  .opt-star,.opt-copy{border:none;background:none;cursor:pointer;font-size:17px;padding:4px 6px;border-radius:6px;line-height:1;opacity:.55;transition:all .15s;}
+  .opt-star:hover,.opt-copy:hover{opacity:1;background:#e8f4fd;}
+  .opt-star.fav{opacity:1;}
+  .cbActions{display:flex;gap:8px;justify-content:center;margin-top:14px;}
+  .cbBtn{padding:9px 18px;border:none;border-radius:8px;background:rgba(255,255,255,.2);color:#fff;font-size:14px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+  .cbBtn:hover{background:rgba(255,255,255,.3);}
+  .cbBtn.ok{background:var(--vert);}
 </style>
 </head>
 <body>
@@ -70,6 +87,14 @@
 <div class="wrap">
   <div class="instr">📋 Saisissez la désignation pièce pour obtenir le code dommage SAGA/2.</div>
   <button id="resetBtn" onclick="resetAll()" style="display:none;width:100%;padding:11px;margin-bottom:18px;border:1.5px solid var(--bord);border-radius:10px;background:#fff;color:#e53e3e;font-size:14px;font-weight:600;cursor:pointer;">🗑️ Tout effacer</button>
+  <div class="quick" id="favZone" style="display:none;">
+    <div class="quick-title">⭐ Favoris</div>
+    <div class="quick-chips" id="favChips"></div>
+  </div>
+  <div class="quick" id="histZone" style="display:none;">
+    <div class="quick-title">🕒 Récemment consultés</div>
+    <div class="quick-chips" id="histChips"></div>
+  </div>
   <div class="fsec">
     <span class="flabel">Marque (optionnel)</span>
     <div class="pills" id="marquePills">
@@ -97,7 +122,7 @@
       <input type="text" class="searchable-select-input" id="dom-input" placeholder="🔍 Cliquez pour chercher une désignation pièce…" readonly onclick="toggleDropdown()" onkeydown="if(event.key==='Enter'||event.key===' ')toggleDropdown()" autocomplete="off">
       <button class="dom-clear" id="dom-clear" onclick="clearDom();event.stopPropagation();">✕</button>
       <div class="searchable-dropdown" id="dom-dropdown">
-        <input type="text" class="searchable-search" id="dom-search" placeholder="Tapez pour filtrer…" oninput="filtrerOptions()" onclick="event.stopPropagation()" autocomplete="off">
+        <input type="text" class="searchable-search" id="dom-search" placeholder="Tapez un nom de pièce ou un code…" oninput="filtrerOptions()" onclick="event.stopPropagation()" autocomplete="off">
         <div class="searchable-count" id="dom-count"></div>
         <div class="searchable-options" id="dom-options"></div>
       </div>
@@ -109,6 +134,10 @@
     <div class="cbCode" id="cbCode">—</div>
     <div class="cbLib" id="cbLib"></div>
     <div class="cbRub" id="cbRub"></div>
+    <div class="cbActions">
+      <button class="cbBtn" id="cbCopyBtn" onclick="copyCode()">⎘ Copier le code</button>
+      <button class="cbBtn" id="cbFavBtn" onclick="toggleFavCurrent()">☆ Favori</button>
+    </div>
   </div>
   <div class="ficheCard" id="ficheCard">
     <h3>📄 Début du nom de fiche GBS Garantie</h3>
@@ -145,20 +174,46 @@ function toggleDropdown(){
 }
 document.addEventListener("click",function(e){if(!e.target.closest(".searchable-select-wrap")){document.querySelectorAll(".searchable-select-wrap.open").forEach(function(w){w.classList.remove("open");});}});
 function filtrerOptions(){buildOptions(document.getElementById("dom-search").value);}
+function matchMulti(libNorm,terms){for(var i=0;i<terms.length;i++){if(libNorm.indexOf(terms[i])<0)return false;}return true;}
 function buildOptions(q){
   var optsEl=document.getElementById("dom-options");
   var countEl=document.getElementById("dom-count");
   var nq=norm(q);
   var pool=selCat?DOM_DATA.filter(function(r){return r.c===selCat;}):DOM_DATA;
-  var list=nq.length>=1?pool.filter(function(r){return norm(r.l).includes(nq);}):pool;
+  var isNum=/^\d+$/.test(q.trim());
+  var terms=nq.split(/\s+/).filter(Boolean);
+  var list=nq.length>=1?pool.filter(function(r){return isNum?String(r.d).includes(q.trim()):matchMulti(norm(r.l),terms);}):pool;
   var seen={},unique=[];
-  list.forEach(function(r){if(!seen[r.l]){seen[r.l]=1;unique.push(r);}});
+  list.forEach(function(r){var k=isNum?r.d:r.l;if(!seen[k]){seen[k]=1;unique.push(r);}});
   var total=unique.length;
-  countEl.textContent=total+" désignation"+(total!==1?"s":"");
-  if(total===0){optsEl.innerHTML='<div class="searchable-no-result">Aucune désignation trouvée.</div>';return;}
+  countEl.textContent=total+" résultat"+(total!==1?"s":"");
+  if(total===0){optsEl.innerHTML='<div class="searchable-no-result">Aucun résultat trouvé.</div>';return;}
   optsEl.innerHTML=unique.slice(0,100).map(function(r){
-    return '<div class="searchable-option" onclick=\'selectionnerOption('+r.d+','+JSON.stringify(r.l)+','+JSON.stringify(r.r)+','+JSON.stringify(r.c)+')\'><span class="opt-code">'+r.d+'</span><span class="opt-body"><div class="opt-label">'+hl(r.l,q)+'</div><div class="opt-rub">'+esc(r.r)+'</div></span></div>';
+    var codeHtml=isNum?hl(String(r.d),q.trim()):r.d;
+    var libHtml=isNum?esc(r.l):hlMulti(r.l,terms);
+    var isFav=FAVS.some(function(f){return f.d===r.d;});
+    var payload=r.d+','+JSON.stringify(r.l)+','+JSON.stringify(r.r)+','+JSON.stringify(r.c);
+    return '<div class="searchable-option">'+
+      '<span class="opt-code" onclick=\'selectionnerOption('+payload+')\'>'+codeHtml+'</span>'+
+      '<span class="opt-body" onclick=\'selectionnerOption('+payload+')\'><div class="opt-label">'+libHtml+'</div><div class="opt-rub">'+esc(r.r)+'</div></span>'+
+      '<span class="opt-actions">'+
+      '<button class="opt-star'+(isFav?' fav':'')+'" title="Favori" onclick=\'event.stopPropagation();toggleFav('+payload+')\'>'+(isFav?'⭐':'☆')+'</button>'+
+      '<button class="opt-copy" title="Copier le code" onclick=\'event.stopPropagation();copyFromList('+r.d+')\'>⎘</button>'+
+      '</span></div>';
   }).join("")+(total>100?'<div class="searchable-no-result" style="color:#bbb;">… +'+(total-100)+' résultats — affinez votre saisie</div>':"");
+}
+function hlMulti(txt,terms){
+  if(!terms||!terms.length)return esc(txt);
+  var ntxt=norm(txt),ranges=[];
+  terms.forEach(function(t){var from=0,i;while((i=ntxt.indexOf(t,from))>=0){ranges.push([i,i+t.length]);from=i+t.length;}});
+  if(!ranges.length)return esc(txt);
+  ranges.sort(function(a,b){return a[0]-b[0];});
+  var merged=[ranges[0]];
+  for(var k=1;k<ranges.length;k++){var last=merged[merged.length-1];if(ranges[k][0]<=last[1])last[1]=Math.max(last[1],ranges[k][1]);else merged.push(ranges[k]);}
+  var out="",pos=0;
+  merged.forEach(function(rg){out+=esc(txt.slice(pos,rg[0]))+"<mark>"+esc(txt.slice(rg[0],rg[1]))+"</mark>";pos=rg[1];});
+  out+=esc(txt.slice(pos));
+  return out;
 }
 function selectionnerOption(code,libelle,rubrique,categorie){
   selCode=code;selLib=libelle;selRub=rubrique;
@@ -185,6 +240,8 @@ function afficherCode(){
   document.getElementById("cbRub").textContent=selRub;
   document.getElementById("codeBox").classList.add("show");
   updateFiche();
+  updateFavBtn();
+  addHist({d:selCode,l:selLib,r:selRub,c:selCat});
   refreshReset();
   setTimeout(function(){document.getElementById("ficheCard").scrollIntoView({behavior:"smooth",block:"nearest"});},100);
 }
@@ -211,6 +268,64 @@ function resetAll(){
 function refreshReset(){
   document.getElementById("resetBtn").style.display=(selMarque||selCat||selCode)?"block":"none";
 }
+
+/* ===== Favoris & Historique (localStorage) ===== */
+var FAVS=[],HIST=[];
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch(e){return [];}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function loadStores(){FAVS=lsGet("cd_favs");HIST=lsGet("cd_hist");renderFavs();renderHist();}
+function renderChips(arr,containerId,zoneId,withRemove){
+  var zone=document.getElementById(zoneId),cont=document.getElementById(containerId);
+  if(!arr.length){zone.style.display="none";cont.innerHTML="";return;}
+  zone.style.display="block";
+  cont.innerHTML=arr.map(function(it,idx){
+    var payload=it.d+','+JSON.stringify(it.l)+','+JSON.stringify(it.r)+','+JSON.stringify(it.c);
+    return '<div class="chip" onclick=\'selectionnerOption('+payload+')\'>'+
+      '<span class="chip-code">'+it.d+'</span>'+
+      '<span class="chip-lib">'+esc(it.l)+'</span>'+
+      (withRemove?'<span class="chip-x" title="Retirer" onclick=\'event.stopPropagation();removeFav('+it.d+')\'>✕</span>':'')+
+      '</div>';
+  }).join("");
+}
+function renderFavs(){renderChips(FAVS,"favChips","favZone",true);}
+function renderHist(){renderChips(HIST,"histChips","histZone",false);}
+function addHist(it){
+  HIST=HIST.filter(function(h){return h.d!==it.d;});
+  HIST.unshift({d:it.d,l:it.l,r:it.r,c:it.c});
+  if(HIST.length>8)HIST=HIST.slice(0,8);
+  lsSet("cd_hist",HIST);renderHist();
+}
+function toggleFav(code,libelle,rubrique,categorie){
+  var i=FAVS.findIndex(function(f){return f.d===code;});
+  if(i>=0){FAVS.splice(i,1);showToast("☆ Retiré des favoris");}
+  else{FAVS.unshift({d:code,l:libelle,r:rubrique,c:categorie});showToast("⭐ Ajouté aux favoris");}
+  lsSet("cd_favs",FAVS);renderFavs();
+  if(document.getElementById("dom-wrap").classList.contains("open"))buildOptions(document.getElementById("dom-search").value);
+  updateFavBtn();
+}
+function removeFav(code){
+  FAVS=FAVS.filter(function(f){return f.d!==code;});
+  lsSet("cd_favs",FAVS);renderFavs();updateFavBtn();
+  showToast("☆ Retiré des favoris");
+}
+function toggleFavCurrent(){if(selCode)toggleFav(selCode,selLib,selRub,selCat);}
+function updateFavBtn(){
+  var btn=document.getElementById("cbFavBtn");if(!btn||!selCode)return;
+  var isFav=FAVS.some(function(f){return f.d===selCode;});
+  btn.innerHTML=isFav?"⭐ Favori":"☆ Favori";
+  btn.classList.toggle("ok",isFav);
+}
+function copyCode(){
+  navigator.clipboard.writeText(String(selCode)).then(function(){
+    var b=document.getElementById("cbCopyBtn");b.innerHTML="✓ Copié !";b.classList.add("ok");
+    showToast("✓ Code "+selCode+" copié !");
+    setTimeout(function(){b.innerHTML="⎘ Copier le code";b.classList.remove("ok");},1800);
+  });
+}
+function copyFromList(code){
+  navigator.clipboard.writeText(String(code)).then(function(){showToast("✓ Code "+code+" copié !");});
+}
+loadStores();
 if(typeof DOM_DATA==="undefined"){document.querySelector(".wrap").innerHTML='<div class="loading">⚠️ Erreur : fichier data.js non chargé.<br>Vérifiez que data.js est dans le même dossier que index.html.</div>';}
 </script>
 </body>
