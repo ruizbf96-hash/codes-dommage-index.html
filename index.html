@@ -2,15 +2,8 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Codes Dommage SAGA/2 — GEA</title>
-<meta name="theme-color" content="#003a70">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Codes Dommage">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
 <style>
   :root{--bleu:#003a70;--accent:#009de0;--vert:#00875a;--bg:#f4f6f9;--card:#fff;--bord:#e2e8f0;--txt:#1a202c;--mut:#718096;}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -84,58 +77,6 @@
   .cbBtn{padding:9px 18px;border:none;border-radius:8px;background:rgba(255,255,255,.2);color:#fff;font-size:14px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
   .cbBtn:hover{background:rgba(255,255,255,.3);}
   .cbBtn.ok{background:var(--vert);}
-
-  /* ===== Optimisations mobile / tactile ===== */
-  @media (max-width:600px){
-    body{padding-bottom:40px;}
-    header{padding:16px 14px;padding-top:max(16px,env(safe-area-inset-top));}
-    header h1{font-size:18px;}
-    .wrap{padding:14px;}
-    .pill{padding:11px 15px;font-size:14px;}
-    .searchable-select-input{padding:15px 42px 15px 14px;font-size:16px;}
-    /* Dropdown plein écran sur mobile */
-    .searchable-select-wrap.open .searchable-dropdown{
-      position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;
-      border:none;border-radius:0;z-index:1000;display:flex;flex-direction:column;
-    }
-    .searchable-search{padding:18px 16px;font-size:17px;flex-shrink:0;}
-    .searchable-count{padding:10px 16px;font-size:13px;flex-shrink:0;}
-    .searchable-options{max-height:none;flex:1;-webkit-overflow-scrolling:touch;}
-    .searchable-option{padding:15px 16px;}
-    .opt-label{font-size:15px;}
-    .opt-star,.opt-copy{font-size:22px;padding:8px 10px;opacity:.7;}
-    /* Barre de fermeture du dropdown plein écran */
-    .dd-close{display:none;}
-    .searchable-select-wrap.open .dd-close{display:flex;align-items:center;justify-content:space-between;
-      padding:14px 16px;background:var(--bleu);color:#fff;font-weight:600;font-size:16px;flex-shrink:0;}
-    .dd-close button{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:20px;
-      width:38px;height:38px;border-radius:50%;cursor:pointer;line-height:1;}
-    .cbCode{font-size:52px;}
-    .cbActions{flex-direction:column;}
-    .cbBtn{width:100%;justify-content:center;padding:14px;font-size:15px;}
-    .chip{padding:10px 13px;font-size:14px;}
-    .chip .chip-x{font-size:18px;padding:2px 4px;}
-    #resetBtn{padding:14px;font-size:15px;}
-    .fbtn{padding:14px;font-size:14px;}
-  }
-  /* Dropdown plein écran : barre de titre (cachée sur desktop) */
-  .dd-close{display:none;}
-  /* Modale installation QR */
-  .install-fab{position:fixed;right:16px;bottom:16px;z-index:90;background:var(--accent);color:#fff;border:none;border-radius:28px;padding:13px 18px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,157,224,.4);display:flex;align-items:center;gap:8px;}
-  .install-fab:hover{background:#0086c2;}
-  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center;padding:20px;}
-  .modal-bg.show{display:flex;}
-  .modal{background:#fff;border-radius:18px;max-width:380px;width:100%;padding:24px;text-align:center;position:relative;max-height:90vh;overflow-y:auto;}
-  .modal h2{font-size:19px;color:var(--bleu);margin-bottom:6px;}
-  .modal .sub{font-size:13px;color:var(--mut);margin-bottom:16px;}
-  .modal img.qr{width:200px;height:200px;border:1px solid var(--bord);border-radius:12px;padding:8px;background:#fff;}
-  .modal .url{font-size:12px;color:var(--accent);word-break:break-all;margin:12px 0;font-family:monospace;}
-  .modal-steps{text-align:left;font-size:13px;color:var(--txt);background:#f7fafc;border-radius:10px;padding:12px 14px;margin-top:8px;}
-  .modal-steps b{color:var(--bleu);}
-  .modal-steps .os{margin:8px 0 4px;}
-  .modal-close{position:absolute;top:12px;right:12px;width:34px;height:34px;border:none;background:#edf2f7;border-radius:50%;font-size:18px;cursor:pointer;color:var(--mut);}
-  .modal-copy{margin-top:14px;width:100%;padding:12px;border:1.5px solid var(--accent);border-radius:10px;background:#fff;color:var(--accent);font-size:14px;font-weight:600;cursor:pointer;}
-  .modal-copy.ok{background:var(--vert);color:#fff;border-color:var(--vert);}
 </style>
 </head>
 <body>
@@ -181,7 +122,6 @@
       <input type="text" class="searchable-select-input" id="dom-input" placeholder="🔍 Cliquez pour chercher une désignation pièce…" readonly onclick="toggleDropdown()" onkeydown="if(event.key==='Enter'||event.key===' ')toggleDropdown()" autocomplete="off">
       <button class="dom-clear" id="dom-clear" onclick="clearDom();event.stopPropagation();">✕</button>
       <div class="searchable-dropdown" id="dom-dropdown">
-        <div class="dd-close"><span>Rechercher une pièce</span><button type="button" onclick="closeDropdown()">✕</button></div>
         <input type="text" class="searchable-search" id="dom-search" placeholder="Tapez un nom de pièce ou un code…" oninput="filtrerOptions()" onclick="event.stopPropagation()" autocomplete="off">
         <div class="searchable-count" id="dom-count"></div>
         <div class="searchable-options" id="dom-options"></div>
@@ -208,23 +148,6 @@
     </div>
   </div>
 </div>
-<button class="install-fab" onclick="openInstall()">📲 Installer sur mobile</button>
-<div class="modal-bg" id="installModal" onclick="if(event.target===this)closeInstall()">
-  <div class="modal">
-    <button class="modal-close" onclick="closeInstall()">✕</button>
-    <h2>📲 Installer l'application</h2>
-    <div class="sub">Scannez ce QR code avec votre téléphone</div>
-    <img class="qr" src="data:image/png;base64,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" alt="QR code installation">
-    <div class="url">ruizbf96-hash.github.io/Code-dommage-app</div>
-    <div class="modal-steps">
-      <div class="os">📱 <b>iPhone (Safari)</b></div>
-      Scannez → ouvrez le lien → bouton Partager ⬆️ → « Sur l'écran d'accueil »
-      <div class="os">🤖 <b>Android (Chrome)</b></div>
-      Scannez → ouvrez le lien → menu ⋮ → « Installer l'application »
-    </div>
-    <button class="modal-copy" id="modalCopyBtn" onclick="copyAppUrl()">⎘ Copier le lien</button>
-  </div>
-</div>
 <div class="toast" id="toast"></div>
 <script src="data.js"></script>
 <script>
@@ -247,17 +170,10 @@ function togglePill(type,val){
 function toggleDropdown(){
   var wrap=document.getElementById("dom-wrap");
   var isOpen=wrap.classList.contains("open");
-  if(isOpen){closeDropdown();return;}
   document.querySelectorAll(".searchable-select-wrap.open").forEach(function(w){w.classList.remove("open");});
-  wrap.classList.add("open");
-  document.body.style.overflow="hidden";
-  var s=document.getElementById("dom-search");s.value="";buildOptions("");setTimeout(function(){s.focus();},80);
+  if(!isOpen){wrap.classList.add("open");var s=document.getElementById("dom-search");s.value="";buildOptions("");setTimeout(function(){s.focus();},80);}
 }
-function closeDropdown(){
-  document.querySelectorAll(".searchable-select-wrap.open").forEach(function(w){w.classList.remove("open");});
-  document.body.style.overflow="";
-}
-document.addEventListener("click",function(e){if(!e.target.closest(".searchable-select-wrap")){closeDropdown();}});
+document.addEventListener("click",function(e){if(!e.target.closest(".searchable-select-wrap")){document.querySelectorAll(".searchable-select-wrap.open").forEach(function(w){w.classList.remove("open");});}});
 function filtrerOptions(){buildOptions(document.getElementById("dom-search").value);}
 document.getElementById("dom-options").addEventListener("click",function(e){
   var el=e.target.closest("[data-act]");
@@ -315,7 +231,7 @@ function selectionnerOption(code,libelle,rubrique,categorie){
   selCode=code;selLib=libelle;selRub=rubrique;
   var inp=document.getElementById("dom-input");
   inp.value=libelle;inp.classList.add("filled");
-  closeDropdown();
+  document.getElementById("dom-wrap").classList.remove("open");
   document.getElementById("dom-clear").classList.add("on");
   if(!selCat){selCat=categorie;document.querySelectorAll("#catPills .pill").forEach(function(p){p.classList.toggle("active",p.dataset.val===categorie);});}
   afficherCode();
@@ -355,14 +271,6 @@ function copyPrefix(){
   navigator.clipboard.writeText(txt).then(function(){showToast("✓ Début copié : "+txt);});
 }
 function showToast(msg){var t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(function(){t.classList.remove("show");},2200);}
-function openInstall(){document.getElementById("installModal").classList.add("show");document.body.style.overflow="hidden";}
-function closeInstall(){document.getElementById("installModal").classList.remove("show");document.body.style.overflow="";}
-function copyAppUrl(){
-  navigator.clipboard.writeText("https://ruizbf96-hash.github.io/Code-dommage-app/").then(function(){
-    var b=document.getElementById("modalCopyBtn");b.textContent="✓ Lien copié !";b.classList.add("ok");
-    setTimeout(function(){b.textContent="⎘ Copier le lien";b.classList.remove("ok");},1800);
-  });
-}
 function resetAll(){
   selMarque="";selCat="";clearDom();
   document.querySelectorAll("#marquePills .pill,#catPills .pill").forEach(function(p){p.classList.remove("active");});
@@ -442,7 +350,6 @@ function copyFromList(code){
   navigator.clipboard.writeText(String(code)).then(function(){showToast("✓ Code "+code+" copié !");});
 }
 loadStores();
-if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}
 if(typeof DOM_DATA==="undefined"){document.querySelector(".wrap").innerHTML='<div class="loading">⚠️ Erreur : fichier data.js non chargé.<br>Vérifiez que data.js est dans le même dossier que index.html.</div>';}
 </script>
 </body>
