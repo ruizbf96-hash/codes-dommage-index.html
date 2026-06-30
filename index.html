@@ -3,354 +3,3215 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Codes Dommage SAGA/2 — GEA</title>
+<title>Contrôle Garantie — TeamGarantie GEA</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-  :root{--bleu:#003a70;--accent:#009de0;--vert:#00875a;--bg:#f4f6f9;--card:#fff;--bord:#e2e8f0;--txt:#1a202c;--mut:#718096;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;padding-bottom:60px;}
-  header{background:linear-gradient(135deg,var(--bleu),#00529b);color:#fff;padding:20px 16px;box-shadow:0 2px 12px rgba(0,0,0,.15);}
-  header h1{font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px;}
-  header p{font-size:13px;opacity:.85;margin-top:4px;}
-  .wrap{max-width:680px;margin:0 auto;padding:16px;}
-  .instr{background:#e8f4fd;border-left:4px solid var(--accent);padding:12px 14px;border-radius:8px;font-size:14px;margin-bottom:18px;color:#1a4971;}
-  .fsec{margin-bottom:18px;}
-  .flabel{display:block;font-size:13px;font-weight:600;color:var(--bleu);margin-bottom:8px;}
-  .pills{display:flex;flex-wrap:wrap;gap:8px;}
-  .pill{padding:8px 13px;border:1.5px solid var(--bord);background:#fff;border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s;font-weight:500;color:var(--txt);}
-  .pill:hover{border-color:var(--accent);}
-  .pill.active{background:var(--bleu);color:#fff;border-color:var(--bleu);}
-  .searchable-select-wrap{position:relative;}
-  .searchable-select-input{width:100%;padding:13px 40px 13px 14px;border:1.5px solid var(--bord);border-radius:10px;font-size:15px;background:#fff;cursor:pointer;color:var(--txt);}
-  .searchable-select-input.filled{border-color:var(--vert);font-weight:600;}
-  .searchable-select-wrap.open .searchable-select-input{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,157,224,.12);}
-  .dom-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:none;background:#edf2f7;border-radius:50%;cursor:pointer;display:none;font-size:14px;color:var(--mut);line-height:1;}
-  .dom-clear.on{display:block;}
-  .searchable-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid var(--accent);border-radius:10px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.15);overflow:hidden;}
-  .searchable-select-wrap.open .searchable-dropdown{display:block;}
-  .searchable-search{width:100%;padding:12px 14px;border:none;border-bottom:1px solid var(--bord);font-size:15px;outline:none;}
-  .searchable-count{padding:6px 14px;font-size:12px;color:var(--mut);background:#f7fafc;border-bottom:1px solid var(--bord);}
-  .searchable-options{max-height:320px;overflow-y:auto;}
-  .searchable-option{padding:11px 14px;cursor:pointer;display:flex;gap:12px;align-items:center;border-bottom:1px solid #f1f5f9;}
-  .searchable-option:hover{background:#e8f4fd;}
-  .opt-code{font-weight:700;color:var(--bleu);font-size:15px;min-width:48px;background:#e8f4fd;padding:3px 8px;border-radius:6px;text-align:center;}
-  .opt-body{flex:1;min-width:0;}
-  .opt-label{font-size:14px;font-weight:600;}
-  .opt-rub{font-size:12px;color:var(--mut);}
-  .searchable-no-result{padding:16px;text-align:center;color:var(--mut);font-size:13px;}
-  mark{background:#fff3a0;padding:0 1px;border-radius:2px;}
-  .codeBox{display:none;background:linear-gradient(135deg,var(--bleu),#00529b);color:#fff;border-radius:14px;padding:22px;margin-top:8px;text-align:center;box-shadow:0 6px 20px rgba(0,58,112,.25);}
-  .codeBox.show{display:block;animation:pop .25s;}
-  @keyframes pop{from{transform:scale(.95);opacity:0;}to{transform:scale(1);opacity:1;}}
-  .cbLabel{font-size:12px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
-  .cbCode{font-size:46px;font-weight:800;line-height:1;margin:6px 0;}
-  .cbLib{font-size:16px;font-weight:600;}
-  .cbRub{font-size:13px;opacity:.85;margin-top:2px;}
-  .cbCopy{margin-top:14px;padding:9px 20px;border:none;border-radius:8px;background:rgba(255,255,255,.2);color:#fff;font-size:14px;cursor:pointer;font-weight:600;}
-  .cbCopy:hover{background:rgba(255,255,255,.3);}
-  .cbCopy.ok{background:var(--vert);}
-  .idle{text-align:center;color:var(--mut);padding:30px 16px;font-size:14px;}
-  .ficheCard{display:none;background:var(--card);border:1.5px solid var(--bord);border-radius:14px;padding:18px;margin-top:14px;}
-  .ficheCard.show{display:block;}
-  .ficheCard h3{font-size:14px;color:var(--bleu);margin-bottom:12px;}
-  .prefix{font-family:monospace;font-size:22px;font-weight:700;letter-spacing:1px;padding:14px;background:#f7fafc;border-radius:8px;text-align:center;margin-bottom:12px;}
-  .pf-m{color:#caa400;}.pf-c{color:var(--vert);}.pf-x{color:#a0aec0;}
-  .ficheBtns{display:flex;gap:8px;flex-wrap:wrap;}
-  .fbtn{flex:1;min-width:130px;padding:11px;border:1.5px solid var(--bord);border-radius:8px;background:#fff;font-size:13px;cursor:pointer;font-weight:600;color:var(--bleu);text-decoration:none;text-align:center;display:block;}
-  .fbtn:hover{border-color:var(--accent);background:#e8f4fd;}
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--vert);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.2);transition:transform .3s;z-index:100;}
-  .toast.show{transform:translateX(-50%) translateY(0);}
-  .loading{text-align:center;padding:40px;color:var(--mut);}
-  .quick{margin-bottom:18px;}
-  .quick-title{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
-  .quick-chips{display:flex;flex-wrap:wrap;gap:8px;}
-  .chip{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border:1.5px solid var(--bord);background:#fff;border-radius:20px;font-size:13px;cursor:pointer;transition:all .15s;}
-  .chip:hover{border-color:var(--accent);background:#e8f4fd;}
-  .chip .chip-code{font-weight:700;color:var(--bleu);}
-  .chip .chip-lib{color:var(--txt);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .chip .chip-x{color:var(--mut);font-size:15px;line-height:1;opacity:.6;}
-  .chip .chip-x:hover{opacity:1;color:#e53e3e;}
-  .opt-actions{display:flex;align-items:center;gap:4px;}
-  .opt-star,.opt-copy{border:none;background:none;cursor:pointer;font-size:17px;padding:4px 6px;border-radius:6px;line-height:1;opacity:.55;transition:all .15s;}
-  .opt-star:hover,.opt-copy:hover{opacity:1;background:#e8f4fd;}
-  .opt-star.fav{opacity:1;}
-  .cbActions{display:flex;gap:8px;justify-content:center;margin-top:14px;}
-  .cbBtn{padding:9px 18px;border:none;border-radius:8px;background:rgba(255,255,255,.2);color:#fff;font-size:14px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
-  .cbBtn:hover{background:rgba(255,255,255,.3);}
-  .cbBtn.ok{background:var(--vert);}
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+:root {
+  --bg:#0f1117; --bg2:#161b27; --bg3:#1e2535;
+  --border:#2a3347; --border-hi:#3d4f6e;
+  --accent:#00d4a8; --accent2:#0099ff;
+  --text:#e8eef8; --text2:#b8c8e0; --text3:#8a9ab5;
+  --warn:#f5a623; --danger:#ff4d6a; --success:#00c896;
+  --r:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px;}
+
+/* ── LOGIN ── */
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px;width:380px;text-align:center;}
+.login-logo{font-size:28px;font-weight:600;margin-bottom:6px;}
+.login-logo span{color:var(--accent);font-family:'IBM Plex Mono',monospace;}
+.login-sub{color:var(--text3);font-size:13px;margin-bottom:32px;}
+.user-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+.user-btn{padding:14px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'IBM Plex Sans',sans-serif;}
+.user-btn:hover{border-color:var(--accent);color:var(--accent);}
+.user-btn.selected{border-color:var(--accent);background:#0d2a22;color:var(--accent);}
+.pin-section{display:none;}
+.pin-label{font-size:12px;color:var(--text3);margin-bottom:8px;}
+.pin-input{width:100%;padding:12px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:20px;text-align:center;letter-spacing:8px;font-family:'IBM Plex Mono',monospace;}
+.pin-input:focus{outline:none;border-color:var(--accent);}
+.login-btn{width:100%;padding:12px;margin-top:14px;border-radius:var(--r);border:none;background:var(--accent);color:#000;font-size:14px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+.login-btn:hover{background:#00efc0;}
+.login-error{color:var(--danger);font-size:12px;margin-top:8px;display:none;}
+
+/* ── HEADER ── */
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;color:var(--text);text-decoration:none;}
+.logo span{color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:13px;}
+.nav{display:flex;gap:4px;align-items:center;}
+.nav a{padding:6px 12px;border-radius:var(--r);font-size:12px;color:var(--text2);text-decoration:none;transition:all .15s;}
+.nav a:hover{background:var(--bg3);color:var(--text);}
+.nav a.active{background:var(--bg3);color:var(--accent);}
+.user-badge{padding:5px 12px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;}
+.user-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+.logout-btn{background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;padding:4px 8px;border-radius:var(--r);}
+.logout-btn:hover{color:var(--danger);}
+
+/* ── APP ── */
+.app-screen{display:none;}
+.main{max-width:1600px;margin:0 auto;padding:20px;}
+
+/* ── ÉTAPES ── */
+.steps{display:flex;gap:0;margin-bottom:24px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.step{flex:1;padding:14px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text3);border-right:1px solid var(--border);transition:all .2s;}
+.step:last-child{border-right:none;}
+.step.active{background:var(--bg3);color:var(--text);}
+.step.done{color:var(--success);}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--border);color:var(--text3);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'IBM Plex Mono',monospace;}
+.step.active .step-num{background:var(--accent);color:#000;}
+.step.done .step-num{background:var(--success);color:#000;}
+
+/* ── PANELS ── */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.panel-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.panel-head h2{font-size:14px;font-weight:500;}
+.panel-body{padding:20px;}
+
+/* ── OCR ZONE ── */
+.ocr-zone{border:2px dashed var(--border-hi);border-radius:8px;padding:40px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg3);position:relative;}
+.ocr-zone:hover,.ocr-zone.drag{border-color:var(--accent);background:#0d2a2215;}
+.ocr-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.ocr-icon{font-size:36px;margin-bottom:10px;opacity:.6;}
+.ocr-zone p{color:var(--text2);font-size:13px;line-height:1.7;}
+.ocr-zone strong{color:var(--accent);}
+.preview-img{width:100%;max-height:220px;object-fit:contain;border-radius:6px;border:1px solid var(--border);background:var(--bg3);margin-top:14px;display:none;}
+.spinner{width:16px;height:16px;border:2px solid var(--border-hi);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ocr-status{margin-top:12px;padding:10px 14px;border-radius:var(--r);font-size:12px;display:none;}
+.ocr-status.loading{background:var(--bg3);color:var(--text2);display:flex;align-items:center;gap:8px;}
+.ocr-status.success{background:#0d2a22;color:var(--success);border:1px solid #00c89630;display:block;}
+.ocr-status.error{background:#2a0d14;color:var(--danger);border:1px solid #ff4d6a30;display:block;}
+
+.btn-create{width:100%;padding:14px;border-radius:var(--r);border:none;background:var(--accent);color:#000;font-size:14px;font-weight:600;cursor:pointer;margin-top:14px;font-family:'IBM Plex Sans',sans-serif;display:none;transition:background .15s;}
+.btn-create:hover{background:#00efc0;}
+.verify-field{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center;margin-bottom:8px;}
+.verify-field label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;}
+.verify-field input,.verify-field textarea{padding:7px 10px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-family:'IBM Plex Mono',monospace;}
+.verify-field textarea{font-family:'IBM Plex Sans',sans-serif;font-size:12px;}
+.verify-field input:focus,.verify-field textarea:focus{border-color:var(--accent);outline:none;}
+.verify-field .warn{color:var(--warn);font-size:10px;grid-column:2;}
+.verify-sep{font-size:10px;color:var(--accent2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);padding:10px 0 4px;margin:6px 0;grid-column:1/-1;}
+
+/* ── FORMULAIRE ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-grid.g3{grid-template-columns:1fr 1fr 1fr;}
+.form-grid.g1{grid-template-columns:1fr;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field.span2{grid-column:1/-1;}
+.field label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.04em;}
+.field input,.field select,.field textarea{
+  padding:9px 12px;border-radius:var(--r);border:1px solid var(--border);
+  background:var(--bg3);color:var(--text);font-size:13px;
+  font-family:'IBM Plex Sans',sans-serif;transition:border-color .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent2);}
+.field input.filled{border-color:#00c89640;background:#0d2a22;}
+.field textarea{resize:vertical;min-height:60px;}
+.section-sep{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:4px;grid-column:1/-1;}
+.interv-block{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px;position:relative;}
+.interv-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.interv-letter{width:22px;height:22px;border-radius:50%;background:var(--accent2);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;}
+.interv-del{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:2px 6px;border-radius:4px;}
+.interv-del:hover{color:var(--danger);background:var(--bg2);}
+.interv-block .field{margin-bottom:8px;}
+.interv-block .field:last-child{margin-bottom:0;}
+
+/* ── STATUTS TOGGLE ── */
+.statuts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.statut-toggle{padding:10px 14px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;cursor:pointer;transition:all .2s;text-align:left;font-family:'IBM Plex Sans',sans-serif;display:flex;align-items:center;gap:8px;}
+.statut-toggle:hover{border-color:var(--border-hi);color:var(--text);}
+.statut-toggle .tog-dot{width:10px;height:10px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .2s;}
+.statut-toggle.active .tog-dot{background:var(--kc);}
+.statut-toggle.active{border-color:var(--kc);color:var(--text);background:color-mix(in srgb, var(--kc) 10%, var(--bg3));}
+.statut-toggle.disabled{opacity:.3;pointer-events:none;filter:grayscale(.8);}
+
+/* ── ACTIONS ── */
+.form-actions{display:flex;gap:10px;margin-top:16px;}
+.btn{padding:10px 20px;border-radius:var(--r);border:1px solid var(--border);background:none;color:var(--text2);font-size:13px;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;}
+.btn:hover{background:var(--bg3);color:var(--text);}
+.btn.primary{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.btn.primary:hover{background:#1aabff;}
+.btn.success{background:var(--success);color:#000;border-color:var(--success);}
+.btn.success:hover{background:#00e8a8;}
+.btn.pdf{background:#2a1a4a;color:#a78bfa;border-color:#a78bfa40;}
+.btn.pdf:hover{background:#3a2a5a;}
+
+/* ── TABLEAU DOSSIERS ── */
+.toolbar{padding:10px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;}
+.toolbar select,.toolbar input{padding:6px 10px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-family:'IBM Plex Sans',sans-serif;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{padding:7px 5px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--border-hi);border-right:1px solid var(--border);white-space:nowrap;color:var(--text2);background:var(--bg3);}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer;}
+tbody tr:hover{background:var(--bg3);}
+tbody td{padding:6px 5px;color:var(--text);border-right:1px solid var(--border);vertical-align:middle;}
+tbody td.mono{font-family:'IBM Plex Mono',monospace;font-size:11px;}
+.empty-row td{text-align:center;padding:40px;color:var(--text3);}
+
+/* Statut badges dans tableau */
+.sbadge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:3px;font-weight:500;margin:1px;}
+
+/* ── MODAL DÉTAIL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;align-items:flex-start;justify-content:center;padding:30px 20px;overflow-y:auto;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border-hi);border-radius:12px;width:700px;max-width:100%;}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:10;border-radius:12px 12px 0 0;}
+.modal-head h3{font-size:15px;font-weight:500;}
+.modal-close{background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;}
+.modal-body{padding:20px;}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;}
+.detail-row{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);}
+.detail-row:last-child{border-bottom:none;}
+.detail-label{font-size:11px;color:var(--text3);width:160px;flex-shrink:0;padding-top:1px;}
+.detail-val{font-size:13px;color:var(--text);flex:1;}
+
+/* KPI bar */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--accent));}
+.kpi-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.kpi-val{font-size:20px;font-weight:600;font-family:'IBM Plex Mono',monospace;}
+.kpi-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* Toast */
+#toast{position:fixed;bottom:20px;right:20px;padding:10px 16px;border-radius:var(--r);font-size:12px;font-weight:500;z-index:999;transform:translateY(60px);opacity:0;transition:all .2s;pointer-events:none;}
+#toast.show{transform:translateY(0);opacity:1;}
+#toast.success{background:#0d2a22;border:1px solid var(--success);color:var(--success);}
+#toast.error{background:#2a0d14;border:1px solid var(--danger);color:var(--danger);}
+#toast.info{background:#2a1f0d;border:1px solid var(--warn);color:var(--warn);}
+
+@media(max-width:700px){
+  .form-grid,.form-grid.g3{grid-template-columns:1fr;}
+  .statuts-grid{grid-template-columns:1fr;}
+  .kpi-row{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 </head>
 <body>
-<header>
-  <h1>🔧 Codes Dommage SAGA/2</h1>
-  <p>TeamGarantie — GEA · Groupe VW Alsace</p>
-</header>
-<div class="wrap">
-  <div class="instr">📋 Saisissez la désignation pièce pour obtenir le code dommage SAGA/2.</div>
-  <button id="resetBtn" onclick="resetAll()" style="display:none;width:100%;padding:11px;margin-bottom:18px;border:1.5px solid var(--bord);border-radius:10px;background:#fff;color:#e53e3e;font-size:14px;font-weight:600;cursor:pointer;">🗑️ Tout effacer</button>
-  <div class="quick" id="favZone" style="display:none;">
-    <div class="quick-title">⭐ Favoris</div>
-    <div class="quick-chips" id="favChips"></div>
-  </div>
-  <div class="quick" id="histZone" style="display:none;">
-    <div class="quick-title">🕒 Récemment consultés</div>
-    <div class="quick-chips" id="histChips"></div>
-  </div>
-  <div class="fsec">
-    <span class="flabel">Marque (optionnel)</span>
-    <div class="pills" id="marquePills">
-      <button class="pill" data-val="VW">VW</button>
-      <button class="pill" data-val="Audi">Audi</button>
-      <button class="pill" data-val="SEAT">SEAT</button>
-      <button class="pill" data-val="SKODA">SKODA</button>
-      <button class="pill" data-val="VU">VU</button>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">GEA <span>Garantie</span></div>
+    <div class="login-sub">Contrôle qualité garantie — TeamGarantie</div>
+    <div class="user-grid">
+      <button class="user-btn" onclick="selectUser('Omar','1472')">Omar</button>
+      <button class="user-btn" onclick="selectUser('Nico','3682')">Nico</button>
+      <button class="user-btn" onclick="selectUser('Tahir','3694')">Tahir</button>
+      <button class="user-btn" onclick="selectUser('Marion','4715')">Marion</button>
+      <button class="user-btn" onclick="selectUser('Céline','5826')" style="grid-column:1/-1;">Céline</button>
     </div>
-  </div>
-  <div class="fsec">
-    <span class="flabel">Catégorie (optionnel)</span>
-    <div class="pills" id="catPills">
-      <button class="pill" data-val="Ensemble motopropulseur">⚙️ Motopropulseur</button>
-      <button class="pill" data-val="Transmission">🔧 Transmission</button>
-      <button class="pill" data-val="Trains roulants">🛞 Trains roulants</button>
-      <button class="pill" data-val="Carrosserie">🚗 Carrosserie</button>
-      <button class="pill" data-val="Chauffage-Ventilation-Climatiseur">❄️ Chauffage / Clim</button>
-      <button class="pill" data-val="Equipement electrique">⚡ Équip. électrique</button>
-    </div>
-  </div>
-  <div class="fsec">
-    <span class="flabel">Désignation pièce <span style="color:#e53e3e;">*</span></span>
-    <div class="searchable-select-wrap" id="dom-wrap">
-      <input type="text" class="searchable-select-input" id="dom-input" placeholder="🔍 Cliquez pour chercher une désignation pièce…" readonly onclick="toggleDropdown()" onkeydown="if(event.key==='Enter'||event.key===' ')toggleDropdown()" autocomplete="off">
-      <button class="dom-clear" id="dom-clear" onclick="clearDom();event.stopPropagation();">✕</button>
-      <div class="searchable-dropdown" id="dom-dropdown">
-        <input type="text" class="searchable-search" id="dom-search" placeholder="Tapez un nom de pièce ou un code…" oninput="filtrerOptions()" onclick="event.stopPropagation()" autocomplete="off">
-        <div class="searchable-count" id="dom-count"></div>
-        <div class="searchable-options" id="dom-options"></div>
-      </div>
-    </div>
-  </div>
-  <div class="idle" id="codeIdle">Le code dommage s'affichera ici…</div>
-  <div class="codeBox" id="codeBox">
-    <div class="cbLabel">Code Dommage SAGA/2</div>
-    <div class="cbCode" id="cbCode">—</div>
-    <div class="cbLib" id="cbLib"></div>
-    <div class="cbRub" id="cbRub"></div>
-    <div class="cbActions">
-      <button class="cbBtn" id="cbCopyBtn" onclick="copyCode()">⎘ Copier le code</button>
-      <button class="cbBtn" id="cbFavBtn" onclick="toggleFavCurrent()">☆ Favori</button>
-    </div>
-  </div>
-  <div class="ficheCard" id="ficheCard">
-    <h3>📄 Début du nom de fiche GBS Garantie</h3>
-    <div class="prefix" id="prefix"></div>
-    <div class="ficheBtns">
-      <button class="fbtn" onclick="copyPrefix()">⎘ Copier le début</button>
-      <a class="fbtn" href="https://www.gbs-garantie.fr/home" target="_blank" rel="noopener">🔗 Ouvrir GBS Garantie</a>
+    <div class="pin-section" id="pin-section">
+      <div class="pin-label" id="pin-label">Code PIN pour <strong id="pin-user-name"></strong></div>
+      <input type="password" class="pin-input" id="pin-input" maxlength="4" placeholder="••••" oninput="checkPin()" autocomplete="off">
+      <div class="login-error" id="login-error">Code PIN incorrect</div>
     </div>
   </div>
 </div>
-<div class="toast" id="toast"></div>
-<script src="data.js"></script>
+
+<!-- ══════════════ APP ══════════════ -->
+<div class="app-screen" id="app-screen">
+
+  <header class="header">
+    <a class="logo" href="#">GEA <span>Garantie</span></a>
+    <nav class="nav">
+      <a href="#" onclick="showTab('tab-new')" id="nav-new" class="active">+ Nouveau</a>
+      <a href="#" onclick="showTab('tab-list')" id="nav-list">Dossiers</a>
+      <a href="dashboard-couts.html">Dashboard</a>
+      <a href="tuto.html">Mode d'emploi</a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span id="queue-badge" onclick="" style="display:none;cursor:pointer;font-size:11px;color:#a07000;background:#f5ecd0;padding:4px 10px;border-radius:20px;" title="Cliquer pour synchroniser maintenant"></span>
+      <span id="draft-indicator" style="font-size:11px;color:var(--accent);opacity:0;transition:opacity .3s;">✓ Brouillon sauvegardé</span>
+      <span id="daily-count" style="font-size:11px;color:var(--text3);padding:4px 10px;background:var(--bg3);border-radius:20px;">—</span>
+      <span id="api-status" onclick="configureApiKey()" style="font-size:10px;cursor:pointer;padding:4px 8px;border-radius:12px;" title="Cliquer pour configurer la clé API"></span>
+      <div class="user-badge"><div class="user-dot"></div><span id="current-user-name">—</span></div>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <!-- ── TAB NOUVEAU DOSSIER ── -->
+  <div id="tab-new" class="main">
+
+    <!-- Étapes -->
+    <div class="steps">
+      <div class="step active" id="step1-ind"><div class="step-num">1</div>Extraction OCR</div>
+      <div class="step" id="step2-ind"><div class="step-num">2</div>Formulaire</div>
+      <div class="step" id="step3-ind"><div class="step-num">3</div>Enregistrer & PDF</div>
+    </div>
+
+    <!-- ÉTAPE 1 : OCR -->
+    <div id="step1" class="panel">
+      <div class="panel-head"><h2>Étape 1 — Extraction OCR</h2><span id="source-badge" style="font-size:11px;color:var(--text3);">DCSnet Neo</span></div>
+      <div class="panel-body">
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+          <span style="font-size:11px;color:var(--text3);">Source :</span>
+          <button onclick="setSource('dcsnet')" id="src-dcs" class="btn" style="border-color:var(--accent);color:var(--accent);">DCSnet Neo</button>
+          <button onclick="setSource('saga')" id="src-saga" class="btn">SAGA/2</button>
+          <button onclick="setSource('or')" id="src-or" class="btn">Ordre de réparation</button>
+          <button onclick="startCapture()" class="btn" style="margin-left:auto;background:#1e1535;color:#a78bfa;border-color:#a78bfa50;">📸 Capturer la fenêtre</button>
+        </div>
+        <div class="ocr-zone" id="ocr-zone">
+          <input type="file" id="ocr-file" accept="image/*" multiple onchange="handleOcrFiles(this.files)">
+          <div class="ocr-icon">📸</div>
+          <p><strong>📸 Capturer la fenêtre</strong> (sélecteur), <strong>Cliquer</strong>, glisser ou <strong>Ctrl+V</strong><br>Sélectionne la fenêtre DCSnet ou SAGA<br><span style="font-size:11px;color:var(--accent);">Astuce : ajoute plusieurs captures si l'OR est long (interventions/pièces sur plusieurs écrans)</span></p>
+        </div>
+        <!-- Galerie des captures ajoutées -->
+        <div id="ocr-gallery" style="display:none;flex-wrap:wrap;gap:8px;margin-top:12px;"></div>
+        <div id="ocr-multi-actions" style="display:none;gap:8px;margin-top:10px;align-items:center;">
+          <button class="btn" onclick="startCapture()" style="background:#1e1535;color:#a78bfa;border-color:#a78bfa50;">➕ Ajouter une capture</button>
+          <button class="btn primary" onclick="analyzeAllCaptures()">🔍 Analyser <span id="capture-count">0</span> capture(s)</button>
+          <button class="btn" onclick="clearCaptures()">🗑 Vider</button>
+        </div>
+        <img id="ocr-preview" class="preview-img" src="" alt="" style="display:none;">
+        <div class="ocr-status" id="ocr-status"></div>
+        <button class="btn-create" id="btn-create" onclick="goToStep2()">
+          ✓ Créer le formulaire →
+        </button>
+        <div style="text-align:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+          <span style="font-size:12px;color:var(--text3);">L'OCR ne fonctionne pas ?</span><br>
+          <button class="btn" onclick="manualForm()" style="margin-top:8px;display:inline-flex;">✎ Saisir manuellement le dossier</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Capture modal -->
+    <div class="modal-bg" id="cap-modal" style="z-index:600;">
+      <div class="modal" style="width:auto;max-width:90vw;text-align:center;padding:0;">
+        <div class="modal-head"><h3 id="cap-status">Sélectionnez la fenêtre DCSnet ou SAGA...</h3><button class="modal-close" onclick="document.getElementById('cap-modal').classList.remove('open')">×</button></div>
+        <div class="modal-body">
+          <img id="cap-preview" src="" alt="" style="max-width:80vw;max-height:55vh;border-radius:8px;border:2px solid var(--accent);object-fit:contain;display:none;">
+        </div>
+        <div class="modal-foot" style="justify-content:center;">
+          <button class="btn primary" id="cap-confirm" onclick="confirmCapture()" style="display:none;">✓ Utiliser cette capture</button>
+          <button class="btn" onclick="document.getElementById('cap-modal').classList.remove('open')">Annuler</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de vérification OCR -->
+    <div class="modal-bg" id="ocr-verify-modal" style="z-index:650;">
+      <div class="modal" style="max-width:600px;padding:0;">
+        <div class="modal-head" style="background:var(--bg2);">
+          <h3>🔍 Vérification des données extraites</h3>
+          <button class="modal-close" onclick="document.getElementById('ocr-verify-modal').classList.remove('open')">×</button>
+        </div>
+        <div class="modal-body" style="max-height:65vh;overflow-y:auto;padding:16px;">
+          <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">Vérifiez et corrigez les champs avant de créer le formulaire. Les champs vides ou incorrects peuvent être modifiés.</p>
+          <div id="ocr-verify-fields"></div>
+        </div>
+        <div class="modal-foot" style="justify-content:space-between;">
+          <button class="btn" onclick="document.getElementById('ocr-verify-modal').classList.remove('open')">Annuler</button>
+          <button class="btn primary" onclick="confirmOcrData()">✓ Confirmer et créer le formulaire</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2 : FORMULAIRE -->
+    <div id="step2" class="panel" style="display:none;">
+      <div class="panel-head"><h2>Étape 2 — Compléter le dossier</h2><button class="btn" onclick="goToStep1()" style="font-size:11px;padding:4px 10px;">← Retour OCR</button></div>
+      <div class="panel-body">
+
+        <div class="form-grid g3">
+          <div class="section-sep">Identification</div>
+          <div class="field">
+            <label>Site *</label>
+            <select id="f-site">
+              <option value="">— Sélectionner —</option>
+              <option value="VW_Illkirch">VW Illkirch (02153)</option>
+              <option value="VW_Bischheim">VW Bischheim (02154)</option>
+              <option value="Audi_Hoenheim">Audi Hoenheim (02155)</option>
+              <option value="Seat_Hoenheim">SEAT Hoenheim (63930)</option>
+              <option value="Skoda_Hoenheim">Skoda Hoenheim (02376)</option>
+              <option value="Audi_Obernai">Audi Obernai (02486)</option>
+              <option value="VW_Obernai">VW Obernai (02485)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>N° OR *</label>
+            <input type="text" id="f-nor">
+            <div id="nor-warn" style="display:none;font-size:11px;color:var(--warn);margin-top:3px;"></div>
+          </div>
+          <div class="field">
+            <label>Date OR</label>
+            <input type="date" id="f-date">
+          </div>
+          <div class="field">
+            <label>Châssis (VIN)</label>
+            <input type="text" id="f-vin">
+            <div id="vin-warn" style="display:none;font-size:11px;color:var(--warn);margin-top:3px;"></div>
+          </div>
+          <div class="field">
+            <label>Modèle</label>
+            <input type="text" id="f-modele">
+          </div>
+          <div class="field">
+            <label>Kilométrage</label>
+            <input type="text" id="f-km">
+          </div>
+          <div class="field">
+            <label>Nom du CCS</label>
+            <input type="text" id="f-ccs">
+          </div>
+          <div class="field">
+            <label>Technicien 1</label>
+            <input type="text" id="f-tech1">
+          </div>
+          <div class="field">
+            <label>Type de garantie</label>
+            <select id="f-typegar">
+              <option value="">— Sélectionner —</option>
+              <option>Action</option>
+              <option>Garantie constructeur</option>
+              <option>Extension de garantie</option>
+              <option>Garantie pièce</option>
+              <option>Participation commerciale</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Code dommage</label>
+            <input type="text" id="f-codedommage" placeholder="ex: 69R7, 93OE..." style="font-family:'IBM Plex Mono',monospace;text-transform:uppercase;">
+          </div>
+          <div class="field">
+            <label>Montant total (€) — auto</label>
+            <input type="text" id="f-montant" readonly style="background:var(--bg2);color:var(--accent);font-weight:600;">
+          </div>
+
+          <div class="section-sep">Interventions</div>
+          <div class="field span2">
+            <label>Service concerné</label>
+            <select id="f-service">
+              <option value="">— Sélectionner —</option>
+              <option>Atelier méca</option><option>CCS</option>
+              <option>Carrosserie</option><option>Magasin</option>
+              <option>TeamGarantie</option><option>VGF</option>
+            </select>
+          </div>
+          <div class="field span2">
+            <div id="interventions-container"></div>
+            <button type="button" class="btn" onclick="addIntervention()" style="margin-top:8px;font-size:12px;padding:6px 12px;">+ Ajouter une intervention</button>
+          </div>
+        </div>
+
+        <!-- STATUTS TOGGLE -->
+        <div style="margin-top:20px;">
+          <div class="section-sep" style="border:none;margin-bottom:12px;">Statut du dossier — état à l'issue du contrôle</div>
+          <div class="statuts-grid">
+            <button class="statut-toggle" style="--kc:#ffe066" id="tog-incomplet" onclick="toggleStatut('incomplet')">
+              <span class="tog-dot"></span>Dossier non conforme
+            </button>
+            <button class="statut-toggle" style="--kc:#ff4d6a" id="tog-nonfact" onclick="toggleStatut('nonfact')">
+              <span class="tog-dot"></span>Dossier non facturable
+            </button>
+          </div>
+          <!-- Issues (apparaissent selon le statut dossier) -->
+          <div id="issues-zone" style="display:none;margin-top:12px;padding:12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">Que devient le dossier ? <span style="text-transform:none;color:var(--text3);">(optionnel)</span></div>
+            <div class="statuts-grid">
+              <button class="statut-toggle" style="--kc:#e67e22" id="tog-retourconc" onclick="toggleStatut('retourconc')">
+                <span class="tog-dot"></span>Retour en concession
+              </button>
+              <button class="statut-toggle" style="--kc:#3498db" id="tog-agarantie" onclick="toggleStatut('agarantie')">
+                <span class="tog-dot"></span>À la garantie (2e contrôle)
+              </button>
+              <button class="statut-toggle" style="--kc:#f5a623" id="tog-fcession_issue" onclick="toggleStatut('fcession_issue')">
+                <span class="tog-dot"></span>Facturé en cession
+              </button>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text3);margin-top:10px;padding:8px;background:var(--bg3);border-radius:6px;">
+            💡 Le statut <strong>facturation</strong> (rattrapage, facturé garantie/cession, annulation...) se renseigne plus tard depuis le détail du dossier, après le 2e contrôle.
+          </div>
+        </div>
+
+        <!-- SUIVI -->
+        <div style="margin-top:20px;">
+          <div class="section-sep" style="border:none;margin-bottom:12px;">Suivi TeamGarantie</div>
+          <div class="form-grid">
+            <div class="field">
+              <label>Correspondant</label>
+              <select id="f-correspondant">
+                <option value="">— Sélectionner —</option>
+                <option>Omar</option><option>Nico</option>
+                <option>Tahir</option><option>Marion</option><option>Céline</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Nombre de relances</label>
+              <input type="number" id="f-relances" min="0" value="0">
+            </div>
+            <div class="field">
+              <label>Défaut 1</label>
+              <input list="defauts-list" id="f-defaut1" placeholder="Choisir ou saisir...">
+            </div>
+            <div class="field">
+              <label>Défaut 2</label>
+              <input list="defauts-list" id="f-defaut2" placeholder="Choisir ou saisir...">
+            </div>
+            <datalist id="defauts-list"></datalist>
+            <div class="field span2">
+              <label>Heures non facturées</label>
+              <input type="text" id="f-heures" value="0">
+            </div>
+            <div class="field span2" id="delai-wrap" style="display:none;">
+              <label style="color:var(--warn);">📅 Délai de facturation (dossier incomplet / non facturable)</label>
+              <input type="date" id="f-delai">
+            </div>
+            <div class="field span2" id="comment-wrap" style="display:none;">
+              <label style="color:var(--warn);">💬 Commentaires (dossier incomplet / non facturable)</label>
+              <textarea id="f-commentaires" rows="3" placeholder="Raison du retour, éléments manquants, précisions pour le site..."></textarea>
+            </div>
+            <div class="field span2">
+              <label>📷 Capture d'écran — motif du retour (optionnel)</label>
+              <div id="capture-zone" tabindex="0" onpaste="handleCapturePaste(event)" onclick="document.getElementById('capture-file').click()" style="border:1.5px dashed #c9a86a;border-radius:8px;padding:14px;text-align:center;cursor:pointer;background:#2a2418;transition:border-color .2s;" title="Faites Win+Shift+S puis cliquez ici et collez (Ctrl+V), ou cliquez pour choisir un fichier">
+                <div id="capture-placeholder" style="color:#c9a86a;font-size:12px;">
+                  📋 Faites <strong>Win+Shift+S</strong>, puis cliquez ici et <strong>Ctrl+V</strong> pour coller<br>
+                  <span style="font-size:11px;color:#9a8c6f;">(ou cliquez pour choisir une image)</span>
+                </div>
+                <img id="capture-preview" style="display:none;max-width:100%;max-height:200px;border-radius:6px;margin-top:4px;">
+              </div>
+              <input type="file" id="capture-file" accept="image/*" style="display:none" onchange="handleCaptureFile(this.files[0])">
+              <div id="capture-actions" style="display:none;margin-top:6px;">
+                <button class="btn" type="button" onclick="clearCapture()" style="font-size:11px;padding:4px 10px;background:#3a1a1a;color:#ff8a8a;border-color:#ff8a8a40;">🗑 Retirer la capture</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn primary" id="btn-save" onclick="saveDossier()" title="Ctrl+S">💾 Enregistrer</button>
+          <button class="btn" onclick="printPDF()" style="background:#1a3a5a;color:#7ec8e3;border-color:#7ec8e340;" title="Imprimer">🖨 Imprimer</button>
+          <button class="btn pdf" onclick="savePDF()" title="Sauvegarder le PDF">💾 Sauvegarder PDF</button>
+          <button class="btn" onclick="sendMail()" style="background:#2a1f0d;color:#e6a817;border-color:#e6a81740;" title="Ouvrir l'email de notification">✉ Envoyer mail</button>
+          <button class="btn" onclick="nextDossier()" style="background:#0d3a2a;color:#5ee8b0;border-color:#5ee8b040;" title="Nouveau dossier">➕ Dossier suivant</button>
+          <button class="btn" onclick="resetForm()">Réinitialiser</button>
+        </div>
+        <div style="font-size:10px;color:var(--text3);text-align:center;margin-top:6px;">Raccourcis : Ctrl+S enregistrer · Ctrl+P PDF · Échap fermer</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-new -->
+
+  <!-- ── TAB LISTE DOSSIERS ── -->
+  <div id="tab-list" class="main" style="display:none;">
+
+    <div class="kpi-row">
+      <div class="kpi" style="--kc:var(--accent)"><div class="kpi-label">Total dossiers</div><div class="kpi-val" id="kl-total">—</div></div>
+      <div class="kpi" style="--kc:#f5a623"><div class="kpi-label">En risque</div><div class="kpi-val" id="kl-risque" style="color:#f5a623;">—</div></div>
+      <div class="kpi" style="--kc:#ff4d6a"><div class="kpi-label">Annulés</div><div class="kpi-val" id="kl-annul" style="color:#ff4d6a;">—</div></div>
+      <div class="kpi" style="--kc:#00c896"><div class="kpi-label">DG sauvées</div><div class="kpi-val" id="kl-sauv" style="color:#00c896;">—</div></div>
+      <div class="kpi" style="--kc:#f5c842"><div class="kpi-label">Rattrapages</div><div class="kpi-val" id="kl-rattrap" style="color:#f5c842;">—</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Dossiers de contrôle</h2><span id="list-count" style="font-size:11px;color:var(--text3);"></span></div>
+      <div id="workflow-counters" style="display:flex;gap:10px;flex-wrap:wrap;padding:0 0 12px;"></div>
+      <div id="relance-panel" style="display:none;"></div>
+      <div class="panel-body">
+        <!-- Stats personnelles -->
+        <div id="my-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px;"></div>
+        <div class="toolbar">
+          <select id="lf-site" onchange="renderList()">
+            <option value="">Tous les sites</option>
+            <option value="VW_Illkirch">VW Illkirch</option>
+            <option value="VW_Bischheim">VW Bischheim</option>
+            <option value="Audi_Hoenheim">Audi Hoenheim</option>
+            <option value="Seat_Hoenheim">SEAT Hoenheim</option>
+            <option value="Skoda_Hoenheim">Skoda Hoenheim</option>
+            <option value="Audi_Obernai">Audi Obernai</option>
+            <option value="VW_Obernai">VW Obernai</option>
+          </select>
+          <select id="lf-statut" onchange="renderList()">
+            <option value="">Tous statuts</option>
+            <optgroup label="Statut dossier">
+              <option value="incomplet">Dossier non conforme</option>
+              <option value="nonfact">Non facturable</option>
+              <option value="retourconc">Retour concession</option>
+              <option value="agarantie">À la garantie</option>
+            </optgroup>
+            <optgroup label="Statut facturation">
+              <option value="rattrapage">Rattrapage</option>
+              <option value="risque">Risque annulation</option>
+              <option value="sauvee">DG sauvée</option>
+              <option value="annul">Annulation définitive</option>
+              <option value="facturegar">Facturé garantie</option>
+              <option value="fcession">Facturé cession</option>
+              <option value="temps">Temps supp.</option>
+            </optgroup>
+          </select>
+          <select id="lf-periode" onchange="renderList()">
+            <option value="">Toute période</option>
+            <option value="today">Aujourd'hui</option>
+            <option value="week">7 derniers jours</option>
+            <option value="month">30 derniers jours</option>
+          </select>
+          <select id="lf-author" onchange="renderList()">
+            <option value="">Tous les contrôleurs</option>
+            <option value="__me__">Mes dossiers</option>
+            <option value="Omar">Omar</option>
+            <option value="Nico">Nico</option>
+            <option value="Tahir">Tahir</option>
+            <option value="Marion">Marion</option>
+            <option value="Céline">Céline</option>
+          </select>
+          <input type="text" id="lf-search" placeholder="N°OR, châssis, CCS, modèle, date, conseiller..." oninput="renderList()" style="min-width:200px;">
+          <button class="btn" onclick="document.getElementById('import-suivi-file').click()" style="margin-left:auto;background:#1a3a5c;color:#7ec8e3;border-color:#7ec8e340;" title="Importer le tableau Suivi Annulation-Rattrapage">⬆ Importer Excel</button>
+          <input type="file" id="import-suivi-file" accept=".xlsx,.xls" style="display:none" onchange="importSuiviRattrapage(this.files[0])">
+          <button class="btn" onclick="exportCSV()">↓ CSV</button>
+        </div>
+        <div>
+        <table style="width:100%;table-layout:auto;font-size:11px;">
+          <thead>
+            <tr style="cursor:pointer;">
+              <th onclick="sortList('site')">Site ⇅</th><th onclick="sortList('nor')">N°OR ⇅</th><th onclick="sortList('vin')">Châssis ⇅</th><th onclick="sortList('ccs')">CCS ⇅</th>
+              <th onclick="sortList('montant')">Montant ⇅</th><th>Statut dossier</th><th>Statut factu.</th>
+              <th onclick="sortList('defaut1')">Défaut ⇅</th><th onclick="sortList('correspondant')">Corresp. ⇅</th><th onclick="sortList('_ts')">Date OR ⇅</th><th onclick="sortList('dateControle')">Date contrôle ⇅</th>
+            </tr>
+          </thead>
+          <tbody id="list-tbody"></tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </div><!-- /tab-list -->
+
+</div><!-- /app-screen -->
+
+<!-- ── MODAL DÉTAIL ── -->
+<div class="modal-bg" id="detail-modal" onclick="if(event.target===this)closeDetail()">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="detail-title">Dossier —</h3>
+      <button class="modal-close" onclick="closeDetail()">×</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-foot" id="detail-foot"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ══ FIREBASE ══ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+const firebaseConfig = {
+  apiKey:"AIzaSyApg898LLWpWlLy8o0JEU9mTMqkbORKLQ0",
+  authDomain:"controle-garantie.firebaseapp.com",
+  databaseURL:"https://controle-garantie-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"controle-garantie",
+  storageBucket:"controle-garantie.firebasestorage.app",
+  messagingSenderId:"988294526180",
+  appId:"1:988294526180:web:119987fabec448679228f1"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+window._db=db; window._ref=ref; window._push=push; window._set=set; window._remove=remove;
+onValue(ref(db,'controle_garantie'), snap => {
+  window._dossiers={};
+  const v=snap.val();
+  if(v) Object.entries(v).forEach(([k,d])=>{window._dossiers[k]={_id:k,...d};});
+  setTimeout(()=>{
+    if(typeof window.renderList==='function') window.renderList();
+  },50);
+},{onlyOnce:false});
+// Clé API partagée (configurée par Omar, lue par tous)
+onValue(ref(db,'config/anthropic_key'), snap => {
+  window._sharedApiKey=snap.val()||'';
+  if(typeof window.updateApiStatus==='function') window.updateApiStatus();
+},{onlyOnce:false});
+</script>
+
+<!-- ══ SCRIPT ══ -->
 <script>
-var selMarque="",selCat="",selCode=null,selLib="",selRub="";
-var CURRENT_OPTS=[];
-function norm(s){return (s||"").toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");}
-function esc(s){return (s||"").toString().replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
-function hl(txt,q){if(!q)return esc(txt);var nt=norm(txt),nq=norm(q),i=nt.indexOf(nq);if(i<0)return esc(txt);return esc(txt.slice(0,i))+"<mark>"+esc(txt.slice(i,i+q.length))+"</mark>"+esc(txt.slice(i+q.length));}
-document.querySelectorAll("#catPills .pill").forEach(function(btn){btn.onclick=function(){togglePill("cat",btn.dataset.val);};});
-document.querySelectorAll("#marquePills .pill").forEach(function(btn){btn.onclick=function(){togglePill("marque",btn.dataset.val);};});
-function togglePill(type,val){
-  var gid=type==="marque"?"#marquePills":"#catPills";
-  var cur=type==="marque"?selMarque:selCat;
-  document.querySelectorAll(gid+" .pill").forEach(function(p){p.classList.remove("active");});
-  if(cur===val){if(type==="marque")selMarque="";else{selCat="";if(selCode)clearDom();}}
-  else{document.querySelector(gid+' .pill[data-val="'+CSS.escape(val)+'"]').classList.add("active");if(type==="marque"){selMarque=val;updateFiche();}else{selCat=val;if(selCode)clearDom();}}
-  if(document.getElementById("dom-wrap").classList.contains("open")){buildOptions(document.getElementById("dom-search").value);}
-  refreshReset();
-}
-function toggleDropdown(){
-  var wrap=document.getElementById("dom-wrap");
-  var isOpen=wrap.classList.contains("open");
-  document.querySelectorAll(".searchable-select-wrap.open").forEach(function(w){w.classList.remove("open");});
-  if(!isOpen){wrap.classList.add("open");var s=document.getElementById("dom-search");s.value="";buildOptions("");setTimeout(function(){s.focus();},80);}
-}
-document.addEventListener("click",function(e){if(!e.target.closest(".searchable-select-wrap")){document.querySelectorAll(".searchable-select-wrap.open").forEach(function(w){w.classList.remove("open");});}});
-function filtrerOptions(){buildOptions(document.getElementById("dom-search").value);}
-document.getElementById("dom-options").addEventListener("click",function(e){
-  var el=e.target.closest("[data-act]");
-  if(!el)return;
-  var idx=parseInt(el.getAttribute("data-idx"),10);
-  var r=CURRENT_OPTS[idx];
-  if(!r)return;
-  var act=el.getAttribute("data-act");
-  if(act==="sel"){selectionnerOption(r.d,r.l,r.r,r.c);}
-  else if(act==="fav"){e.stopPropagation();toggleFav(r.d,r.l,r.r,r.c);}
-  else if(act==="copy"){e.stopPropagation();copyFromList(r.d);}
-});
-function matchMulti(libNorm,terms){for(var i=0;i<terms.length;i++){if(libNorm.indexOf(terms[i])<0)return false;}return true;}
-function buildOptions(q){
-  var optsEl=document.getElementById("dom-options");
-  var countEl=document.getElementById("dom-count");
-  var nq=norm(q);
-  var pool=selCat?DOM_DATA.filter(function(r){return r.c===selCat;}):DOM_DATA;
-  var isNum=/^\d+$/.test(q.trim());
-  var terms=nq.split(/\s+/).filter(Boolean);
-  var list=nq.length>=1?pool.filter(function(r){return isNum?String(r.d).includes(q.trim()):matchMulti(norm(r.l),terms);}):pool;
-  var seen={},unique=[];
-  list.forEach(function(r){var k=isNum?r.d:r.l;if(!seen[k]){seen[k]=1;unique.push(r);}});
-  var total=unique.length;
-  countEl.textContent=total+" résultat"+(total!==1?"s":"");
-  if(total===0){optsEl.innerHTML='<div class="searchable-no-result">Aucun résultat trouvé.</div>';return;}
-  CURRENT_OPTS=unique.slice(0,100);
-  optsEl.innerHTML=CURRENT_OPTS.map(function(r,idx){
-    var codeHtml=isNum?hl(String(r.d),q.trim()):r.d;
-    var libHtml=isNum?esc(r.l):hlMulti(r.l,terms);
-    var isFav=FAVS.some(function(f){return f.d===r.d;});
-    return '<div class="searchable-option" data-idx="'+idx+'">'+
-      '<span class="opt-code" data-act="sel" data-idx="'+idx+'">'+codeHtml+'</span>'+
-      '<span class="opt-body" data-act="sel" data-idx="'+idx+'"><div class="opt-label">'+libHtml+'</div><div class="opt-rub">'+esc(r.r)+'</div></span>'+
-      '<span class="opt-actions">'+
-      '<button class="opt-star'+(isFav?' fav':'')+'" title="Favori" data-act="fav" data-idx="'+idx+'">'+(isFav?'⭐':'☆')+'</button>'+
-      '<button class="opt-copy" title="Copier le code" data-act="copy" data-idx="'+idx+'">⎘</button>'+
-      '</span></div>';
-  }).join("")+(total>100?'<div class="searchable-no-result" style="color:#bbb;">… +'+(total-100)+' résultats — affinez votre saisie</div>':"");
-}
-function hlMulti(txt,terms){
-  if(!terms||!terms.length)return esc(txt);
-  var ntxt=norm(txt),ranges=[];
-  terms.forEach(function(t){var from=0,i;while((i=ntxt.indexOf(t,from))>=0){ranges.push([i,i+t.length]);from=i+t.length;}});
-  if(!ranges.length)return esc(txt);
-  ranges.sort(function(a,b){return a[0]-b[0];});
-  var merged=[ranges[0]];
-  for(var k=1;k<ranges.length;k++){var last=merged[merged.length-1];if(ranges[k][0]<=last[1])last[1]=Math.max(last[1],ranges[k][1]);else merged.push(ranges[k]);}
-  var out="",pos=0;
-  merged.forEach(function(rg){out+=esc(txt.slice(pos,rg[0]))+"<mark>"+esc(txt.slice(rg[0],rg[1]))+"</mark>";pos=rg[1];});
-  out+=esc(txt.slice(pos));
-  return out;
-}
-function selectionnerOption(code,libelle,rubrique,categorie){
-  selCode=code;selLib=libelle;selRub=rubrique;
-  var inp=document.getElementById("dom-input");
-  inp.value=libelle;inp.classList.add("filled");
-  document.getElementById("dom-wrap").classList.remove("open");
-  document.getElementById("dom-clear").classList.add("on");
-  if(!selCat){selCat=categorie;document.querySelectorAll("#catPills .pill").forEach(function(p){p.classList.toggle("active",p.dataset.val===categorie);});}
-  afficherCode();
-}
-function clearDom(){
-  selCode=null;selLib="";selRub="";
-  var inp=document.getElementById("dom-input");
-  inp.value="";inp.classList.remove("filled");
-  document.getElementById("dom-clear").classList.remove("on");
-  document.getElementById("codeBox").classList.remove("show");
-  document.getElementById("codeIdle").style.display="";
-  document.getElementById("ficheCard").classList.remove("show");
-}
-function afficherCode(){
-  document.getElementById("codeIdle").style.display="none";
-  document.getElementById("cbCode").textContent=selCode;
-  document.getElementById("cbLib").textContent=selLib;
-  document.getElementById("cbRub").textContent=selRub;
-  document.getElementById("codeBox").classList.add("show");
-  updateFiche();
-  updateFavBtn();
-  addHist({d:selCode,l:selLib,r:selRub,c:selCat});
-  refreshReset();
-  setTimeout(function(){document.getElementById("ficheCard").scrollIntoView({behavior:"smooth",block:"nearest"});},100);
-}
-var MARQUE_MAP={VW:"VW",Audi:"AU",SEAT:"SE",SKODA:"SK",VU:"VU"};
-function updateFiche(){
-  if(!selCode){document.getElementById("ficheCard").classList.remove("show");return;}
-  var m=selMarque?(MARQUE_MAP[selMarque]||selMarque):"____";
-  var pfx='<span class="pf-m">'+m+'</span>-<span class="pf-c">'+selCode+'</span>-<span class="pf-x">____-____-____-_-___</span>';
-  document.getElementById("prefix").innerHTML=pfx;
-  document.getElementById("ficheCard").classList.add("show");
-}
-function copyPrefix(){
-  var m=selMarque?(MARQUE_MAP[selMarque]||selMarque):"";
-  var txt=(m?m:"")+"-"+selCode+"-";
-  navigator.clipboard.writeText(txt).then(function(){showToast("✓ Début copié : "+txt);});
-}
-function showToast(msg){var t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(function(){t.classList.remove("show");},2200);}
-function resetAll(){
-  selMarque="";selCat="";clearDom();
-  document.querySelectorAll("#marquePills .pill,#catPills .pill").forEach(function(p){p.classList.remove("active");});
-  document.getElementById("resetBtn").style.display="none";
-  showToast("✓ Tout effacé");
-}
-function refreshReset(){
-  document.getElementById("resetBtn").style.display=(selMarque||selCat||selCode)?"block":"none";
+window._dossiers={};
+let _currentUser=null;
+window._sharedApiKey=''; // clé partagée depuis Firebase
+// Priorité : clé hardcodée → clé partagée Firebase → localStorage local
+function getApiKey(){return (window._sharedApiKey||'')||localStorage.getItem('gea_anthropic_key')||'';}
+let _selectedUser=null;
+let _selectedPin=null;
+let _ocrData={};
+let _currentSource='dcsnet';
+// Groupe 1 (statut dossier, à la création) : incomplet, nonfact + issues retourconc/agarantie/fcession_issue
+// Groupe 2 (statut facturation, plus tard) : rattrapage, risque, sauvee, annul, facturegar, fcession, temps
+let _statuts={incomplet:false,nonfact:false,retourconc:false,agarantie:false,fcession_issue:false,
+  rattrapage:false,risque:false,malgre:false,sauvee:false,annul:false,facturegar:false,fcession:false,temps:false};
+let _detailId=null;
+
+const USERS={'Omar':'1472','Nico':'3682','Tahir':'3694','Marion':'4715','Céline':'5826'};
+const SITE_SHORT={'VW_Illkirch':'VW Illkirch','VW_Bischheim':'VW Bischheim','Audi_Hoenheim':'Audi Hoenheim','Seat_Hoenheim':'SEAT Hoenheim','Skoda_Hoenheim':'Skoda Hoenheim','Audi_Obernai':'Audi Obernai','VW_Obernai':'VW Obernai'};
+const SITE_KVPS={'VW_Illkirch':'02153','VW_Bischheim':'02154','Audi_Hoenheim':'02155','Seat_Hoenheim':'63930','Skoda_Hoenheim':'02376','Audi_Obernai':'02486','VW_Obernai':'02485'};
+// Format date JJ/MM/AAAA (depuis AAAA-MM-JJ ou autre)
+function dateFR(s){if(!s||s==='—')return s||'—';const m=s.toString().match(/^(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}/${m[2]}/${m[1]}`:s;}
+const SITE_MAP={
+  'GIDAAUDHOE':'Audi_Hoenheim','GIDAVWBIS':'VW_Bischheim','GIDAAUDOBE':'Audi_Obernai',
+  'GIDASEAHOE':'Seat_Hoenheim','GIDASKOHOE':'Skoda_Hoenheim','GIDAVWILL':'VW_Illkirch','GIDAVWOBE':'VW_Obernai',
+  'GARANTIE ILLKIRCH':'VW_Illkirch','GARANTIE BISCHHEIM':'VW_Bischheim','GARANTIE OBERNAI':'Audi_Obernai','GARANTIE HOENHEIM':'Audi_Hoenheim'
+};
+const STATUT_LABELS={incomplet:'Dossier non conforme',nonfact:'Non facturable',retourconc:'Retour concession',agarantie:'À la garantie',fcession_issue:'Facturé cession',rattrapage:'Rattrapage',risque:'Risque annul.',malgre:'DG passée malgré risque',sauvee:'DG sauvée',annul:'Annulation déf.',facturegar:'Facturé garantie',fcession:'Facturé cession',temps:'Temps supp.',nonrevenu:'Dossier non revenu'};
+const STATUT_COLORS={incomplet:'#ffe066',nonfact:'#ff4d6a',retourconc:'#e67e22',agarantie:'#3498db',fcession_issue:'#f5a623',rattrapage:'#f5c842',risque:'#f5a623',malgre:'#f5c842',sauvee:'#00c896',annul:'#ff4d6a',facturegar:'#2ecc71',fcession:'#f5a623',temps:'#2ecc71',nonrevenu:'#ff7a8a'};
+// Groupes pour l'affichage séparé
+const GROUPE_DOSSIER=['incomplet','nonfact','retourconc','agarantie','fcession_issue'];
+const GROUPE_FACTURATION=['rattrapage','risque','sauvee','annul','facturegar','fcession','temps'];
+const DEFAUTS=['ACG demande de déblocage','Action de rappel déjà facturée','Action de rappel non effectué','Adaptation ou réglage de base manquants','Annulation injustifiée','Bon de reliquat manquant','CAD non conforme ou manquant','Chargeur de batterie pas raccordé','Code fabricant manquant ou erroné','Commentaire technicien incomplet ou manquant','Date DMS erronée','Délai OR dépassé','Descriptif des travaux manquant ou incomplet ou illisible','Directive action non respecté','Dossier incomplet pour demande CCR','Dossier reçu hors délai','Entretien non conforme','Erreur service garantie','Feuille descriptif travaux non utilisée','Fonction assistée non exécutée','Garantie échue','Immat sur vidéo','IQ clôturé avant facturation DG','IQ manquant','IQ ne correspond pas à la réparation','IQ non clôturé après facturation DG','IQ non conforme','IQ ouvert après 1er pointage','IQ ouvert par le technicien','Justificatifs manquants','Kilométrage erroné DCS ou IQ','Kilométrage sur or manuscrit pas de contre signature client','Liste PPSO non utilisé','Manque dernier entretien participation AUDI','Manque devis','Manque facture 1er remplacement','Manque formulaire de refus',"Manque historique d'entretien",'Manque Kulanz','Manque rétro-documentation','Manuel de réparation non respecté','Mauvaise réf sur lOR','Mise hors tension manquante','MO en trop','Ne relève pas de la garantie','OR clôturé garantie clôturé',"OR non conforme selon règle d'audit",'OR non conforme pour le retour atelier','OR supprimé',"Pas de lignes ouvertes pour l'action",'Photo ou vidéo manquante ou non conforme','Pièce non rendue au magasin','Pièce remplacée non imputable en garantie','Pièce remplacée sans défaut','Pièce renvoyée hors délai','Pièces en trop sur OR','Pièces manquantes sur OR','Pièces non renvoyer','Plainte client sur OR manquante ou non conforme','Plan de contrôle non conforme,manquant ou non abouti','Plusieurs protocoles différence excessive de kilométrage','Plusieurs protocoles sans MAJ ODIS','Pointage manquant,incomplet,erroné','Protocole non conforme,manquant ou non abouti','Purge manquante ou non aboutie','Réglage / calibrage manquant','Remplacement pièce non justifiée','Retard service garantie','Scan airbag non effectué','Signature sur OR manquante','TD1','Ticket batterie non conforme','Ticket clim absent ou non conforme','TPI ne correspond pas','TPI non applicable','TPI non appliquée','TPI non insérer dans lIQ avant MAJ','TPI non jointe à lOR','TPI pas respectée','Véhicule hors garantie'];
+
+// Init défauts — remplir la datalist (choix + saisie manuelle possible)
+(function(){
+  const dl=document.getElementById('defauts-list');
+  if(dl) dl.innerHTML=DEFAUTS.map(d=>`<option value="${d.replace(/"/g,'&quot;')}">`).join('');
+})();
+
+// ── LOGIN ──
+window.selectUser=function(name,pin){
+  _selectedUser=name; _selectedPin=pin;
+  document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('selected'));
+  event.target.classList.add('selected');
+  document.getElementById('pin-section').style.display='block';
+  document.getElementById('pin-user-name').textContent=name;
+  document.getElementById('pin-input').value='';
+  document.getElementById('login-error').style.display='none';
+  document.getElementById('pin-input').focus();
+};
+
+window.checkPin=function(){
+  const val=document.getElementById('pin-input').value;
+  if(val.length===4){
+    if(val===_selectedPin){
+      doLogin(_selectedUser);
+      // Mémoriser la session (expire à minuit)
+      const expire=new Date();expire.setHours(23,59,59,999);
+      localStorage.setItem('gea_session',JSON.stringify({user:_selectedUser,expire:expire.getTime()}));
+    } else {
+      document.getElementById('login-error').style.display='block';
+      document.getElementById('pin-input').value='';
+    }
+  }
+};
+
+function doLogin(user){
+  _currentUser=user;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app-screen').style.display='block';
+  document.getElementById('current-user-name').textContent=_currentUser;
+  const corr=document.getElementById('f-correspondant');
+  if(corr) corr.value=_currentUser;
+  // Charger un éventuel brouillon
+  setTimeout(checkDraft,300);
+  updateConnDot();
+  updateApiStatus();
+  updateQueueBadge();
+  setTimeout(syncQueue,2000); // tenter de synchroniser la file au démarrage
 }
 
-/* ===== Favoris & Historique (localStorage) ===== */
-var FAVS=[],HIST=[];
-function lsGet(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch(e){return [];}}
-function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
-function loadStores(){FAVS=lsGet("cd_favs");HIST=lsGet("cd_hist");renderFavs();renderHist();
-  document.getElementById("favChips").addEventListener("click",chipHandler(function(){return FAVS;}));
-  document.getElementById("histChips").addEventListener("click",chipHandler(function(){return HIST;}));
+// Reconnexion auto si session valide
+(function autoLogin(){
+  try{
+    const s=JSON.parse(localStorage.getItem('gea_session')||'null');
+    if(s&&s.user&&s.expire>Date.now()){
+      // Attendre que le DOM soit prêt
+      setTimeout(()=>doLogin(s.user),100);
+    }
+  }catch(e){}
+})();
+
+window.logout=function(){
+  localStorage.removeItem('gea_session');
+  _currentUser=null; _selectedUser=null;
+  document.getElementById('app-screen').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.querySelectorAll('.user-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('pin-section').style.display='none';
+};
+
+// ── TABS ──
+window.showTab=function(tab){
+  document.getElementById('tab-new').style.display='none';
+  document.getElementById('tab-list').style.display='none';
+  document.getElementById('nav-new').classList.remove('active');
+  document.getElementById('nav-list').classList.remove('active');
+  if(tab==='tab-new'){
+    document.getElementById('tab-new').style.display='block';
+    document.getElementById('nav-new').classList.add('active');
+  } else {
+    document.getElementById('tab-list').style.display='block';
+    document.getElementById('nav-list').classList.add('active');
+    renderList();
+  }
+};
+
+// ── SOURCE ──
+window.setSource=function(src){
+  _currentSource=src;
+  const map={dcsnet:'src-dcs',saga:'src-saga',or:'src-or'};
+  Object.entries(map).forEach(([s,id])=>{
+    const el=document.getElementById(id);
+    if(el){
+      el.style.borderColor=src===s?'var(--accent)':'var(--border)';
+      el.style.color=src===s?'var(--accent)':'var(--text2)';
+    }
+  });
+  const labels={dcsnet:'DCSnet Neo',saga:'SAGA/2',or:'Ordre de réparation'};
+  const badge=document.getElementById('source-badge');
+  if(badge) badge.textContent=labels[src]||src;
+};
+
+// ── OCR ──
+const dz=document.getElementById('ocr-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)handleOcrFile(f);});
+document.addEventListener('paste',e=>{
+  if(document.getElementById('detail-modal').classList.contains('open'))return;
+  // Ne capturer pour l'OCR que si l'étape 1 est visible (sinon conflit avec capture étape 2)
+  const step1=document.getElementById('step1');
+  if(!step1||step1.style.display==='none')return;
+  const items=e.clipboardData?.items;
+  if(!items)return;
+  for(const item of items){if(item.type.startsWith('image/')){handleOcrFile(item.getAsFile());break;}}
+});
+
+// ── Capture écran native ──
+let _capBlob=null;
+window.startCapture=async function(){
+  try{
+    document.getElementById('cap-modal').classList.add('open');
+    document.getElementById('cap-status').textContent='Sélectionnez la fenêtre DCSnet ou SAGA...';
+    document.getElementById('cap-preview').style.display='none';
+    document.getElementById('cap-confirm').style.display='none';
+    const stream=await navigator.mediaDevices.getDisplayMedia({video:{cursor:'never'},audio:false});
+    const track=stream.getVideoTracks()[0];
+    const ic=new ImageCapture(track);
+    const bm=await ic.grabFrame();
+    stream.getTracks().forEach(t=>t.stop());
+    const cv=document.createElement('canvas');
+    cv.width=bm.width;cv.height=bm.height;
+    cv.getContext('2d').drawImage(bm,0,0);
+    cv.toBlob(blob=>{
+      _capBlob=blob;
+      const img=document.getElementById('cap-preview');
+      img.src=URL.createObjectURL(blob);img.style.display='block';
+      document.getElementById('cap-status').textContent='Aperçu — confirmez pour analyser';
+      document.getElementById('cap-confirm').style.display='inline-flex';
+    },'image/png');
+  }catch(e){
+    document.getElementById('cap-status').textContent='Capture annulée ou non supportée (Chrome/Edge requis)';
+    console.error(e);
+  }
+};
+window.confirmCapture=function(){
+  if(_capBlob){
+    document.getElementById('cap-modal').classList.remove('open');
+    handleOcrFile(_capBlob);
+  }
+};
+
+// ── CONSENSUS VIN : compare 2 lectures + validation structurelle VW Group ──
+function vinConsensus(vin1,vin2){
+  if(vin1.length!==17||vin2.length!==17) return vin2.length===17?vin2:vin1;
+
+  const VALID_WMI=['WVW','WV1','WV2','WV3','WAU','WAG','TMB','VSS','TRU','3VW','AAV','WUA'];
+  const YEAR_CODES='ABCDEFGHJKLMNPRSTVWXY123456789';
+  const FORBIDDEN='OIQ';
+  const FIX={'O':'0','I':'1','Q':'9'};
+  // Ressemblance lettre → chiffre (pour corriger les positions qui doivent être des chiffres)
+  const LETTER_TO_DIGIT={'O':'0','I':'1','L':'1','Z':'2','S':'5','G':'6','T':'7','B':'8','Q':'9'};
+
+  let result='';
+  for(let i=0;i<17;i++){
+    let c1=vin1[i], c2=vin2[i];
+    if(FORBIDDEN.includes(c1)) c1=FIX[c1];
+    if(FORBIDDEN.includes(c2)) c2=FIX[c2];
+
+    if(c1===c2){
+      result+=c1;
+    } else {
+      let best=c2; // par défaut préférer la lecture zoomée
+
+      // Position 1-3 (WMI) : vérifier préfixe valide
+      if(i===2){
+        const wmi1=(result+c1).slice(0,3), wmi2=(result+c2).slice(0,3);
+        const ok1=VALID_WMI.includes(wmi1), ok2=VALID_WMI.includes(wmi2);
+        if(ok2&&!ok1) best=c2;
+        else if(ok1&&!ok2) best=c1;
+      }
+
+      // Position 10 (code année)
+      if(i===9){
+        const ok1=YEAR_CODES.includes(c1), ok2=YEAR_CODES.includes(c2);
+        if(ok2&&!ok1) best=c2;
+        else if(ok1&&!ok2) best=c1;
+      }
+
+      // Positions 12-17 (numéro séquentiel) : toujours des chiffres
+      if(i>=11){
+        const d1=/\d/.test(c1), d2=/\d/.test(c2);
+        if(d2&&!d1) best=c2;
+        else if(d1&&!d2) best=c1;
+      }
+
+      result+=best;
+      console.log(`  VIN pos ${i+1}: "${c1}" vs "${c2}" → "${best}"`);
+    }
+  }
+
+  // ── POST-TRAITEMENT VW GROUP (si le WMI est reconnu) ──
+  const wmi=result.slice(0,3);
+  const isVWGroup=VALID_WMI.includes(wmi);
+  if(isVWGroup){
+    let chars=result.split('');
+
+    // Positions 4-5-6 = "ZZZ" uniquement pour WMI allemands (W...) = VW, Audi
+    // Skoda (TMB), SEAT (VSS), VW Mexique (3VW) n'ont PAS cette règle
+    if(wmi.startsWith('W')){
+      for(let p=3;p<=5;p++){
+        if(chars[p]!=='Z'){
+          console.log(`  VIN pos ${p+1}: "${chars[p]}" forcé à "Z" (EU filler WMI=${wmi})`);
+          chars[p]='Z';
+        }
+      }
+    }
+
+    // Positions 12-17 = TOUJOURS des chiffres (numéro séquentiel de production)
+    for(let p=11;p<=16;p++){
+      if(/[A-Z]/.test(chars[p])){
+        const digit=LETTER_TO_DIGIT[chars[p]]||chars[p];
+        if(digit!==chars[p]){
+          console.log(`  VIN pos ${p+1}: "${chars[p]}" → "${digit}" (séquentiel = chiffres)`);
+          chars[p]=digit;
+        }
+      }
+    }
+
+    // Caractères interdits restants
+    for(let p=0;p<17;p++){
+      if(FORBIDDEN.includes(chars[p])){
+        const fix=FIX[chars[p]];
+        console.log(`  VIN pos ${p+1}: "${chars[p]}" → "${fix}" (interdit dans VIN)`);
+        chars[p]=fix;
+      }
+    }
+
+    result=chars.join('');
+  }
+
+  return result;
 }
-function renderChips(arr,containerId,zoneId,withRemove){
-  var zone=document.getElementById(zoneId),cont=document.getElementById(containerId);
-  if(!arr.length){zone.style.display="none";cont.innerHTML="";return;}
-  zone.style.display="block";
-  cont.innerHTML=arr.map(function(it,idx){
-    return '<div class="chip" data-chipact="sel" data-idx="'+idx+'">'+
-      '<span class="chip-code">'+it.d+'</span>'+
-      '<span class="chip-lib">'+esc(it.l)+'</span>'+
-      (withRemove?'<span class="chip-x" title="Retirer" data-chipact="rm" data-idx="'+idx+'">✕</span>':'')+
-      '</div>';
-  }).join("");
-}
-function chipHandler(getArr){
-  return function(e){
-    var el=e.target.closest("[data-chipact]");
-    if(!el)return;
-    var idx=parseInt(el.getAttribute("data-idx"),10);
-    var arr=getArr();var it=arr[idx];if(!it)return;
-    if(el.getAttribute("data-chipact")==="rm"){e.stopPropagation();removeFav(it.d);}
-    else{selectionnerOption(it.d,it.l,it.r,it.c);}
-  };
-}
-function renderFavs(){renderChips(FAVS,"favChips","favZone",true);}
-function renderHist(){renderChips(HIST,"histChips","histZone",false);}
-function addHist(it){
-  HIST=HIST.filter(function(h){return h.d!==it.d;});
-  HIST.unshift({d:it.d,l:it.l,r:it.r,c:it.c});
-  if(HIST.length>8)HIST=HIST.slice(0,8);
-  lsSet("cd_hist",HIST);renderHist();
-}
-function toggleFav(code,libelle,rubrique,categorie){
-  var i=FAVS.findIndex(function(f){return f.d===code;});
-  if(i>=0){FAVS.splice(i,1);showToast("☆ Retiré des favoris");}
-  else{FAVS.unshift({d:code,l:libelle,r:rubrique,c:categorie});showToast("⭐ Ajouté aux favoris");}
-  lsSet("cd_favs",FAVS);renderFavs();
-  if(document.getElementById("dom-wrap").classList.contains("open"))buildOptions(document.getElementById("dom-search").value);
-  updateFavBtn();
-}
-function removeFav(code){
-  FAVS=FAVS.filter(function(f){return f.d!==code;});
-  lsSet("cd_favs",FAVS);renderFavs();updateFavBtn();
-  showToast("☆ Retiré des favoris");
-}
-function toggleFavCurrent(){if(selCode)toggleFav(selCode,selLib,selRub,selCat);}
-function updateFavBtn(){
-  var btn=document.getElementById("cbFavBtn");if(!btn||!selCode)return;
-  var isFav=FAVS.some(function(f){return f.d===selCode;});
-  btn.innerHTML=isFav?"⭐ Favori":"☆ Favori";
-  btn.classList.toggle("ok",isFav);
-}
-function copyCode(){
-  navigator.clipboard.writeText(String(selCode)).then(function(){
-    var b=document.getElementById("cbCopyBtn");b.innerHTML="✓ Copié !";b.classList.add("ok");
-    showToast("✓ Code "+selCode+" copié !");
-    setTimeout(function(){b.innerHTML="⎘ Copier le code";b.classList.remove("ok");},1800);
+
+// ── CROP + ZOOM AUTOMATIQUE ZONE VIN ──
+// Sur DCSnet : bandeau turquoise + ligne véhicule = entre 5% et 28% de la hauteur
+// Sur OR papier : en-tête + ligne véhicule = entre 10% et 35%
+// On prend large : 5%-35%, zoom ×4 en PNG lossless
+function cropAndZoomVIN(b64,mime){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      const topPct=0.05, bottomPct=0.35, zoom=4;
+      const cropY=Math.round(img.height*topPct);
+      const cropH=Math.round(img.height*(bottomPct-topPct));
+      const cv=document.createElement('canvas');
+      cv.width=Math.round(img.width*zoom);
+      cv.height=Math.round(cropH*zoom);
+      const ctx=cv.getContext('2d');
+      ctx.fillStyle='#ffffff';
+      ctx.fillRect(0,0,cv.width,cv.height);
+      // Lissage haute qualité pour l'agrandissement du texte
+      ctx.imageSmoothingEnabled=true;
+      ctx.imageSmoothingQuality='high';
+      ctx.drawImage(img,0,cropY,img.width,cropH,0,0,cv.width,cv.height);
+      // Si l'image résultante est trop grosse (>5Mo), réduire légèrement
+      let result=cv.toDataURL('image/png').split(',')[1];
+      if(result.length*0.75>5*1024*1024){
+        result=cv.toDataURL('image/jpeg',0.95).split(',')[1];
+      }
+      resolve(result);
+    };
+    img.src='data:'+mime+';base64,'+b64;
   });
 }
-function copyFromList(code){
-  navigator.clipboard.writeText(String(code)).then(function(){showToast("✓ Code "+code+" copié !");});
+
+function compressImage(file,maxW=2000,minW=1200){
+  return new Promise(resolve=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      // Si le fichier est déjà petit (<4Mo) et PNG, envoyer tel quel (lossless, meilleur pour l'OCR)
+      const rawB64=e.target.result.split(',')[1];
+      const sizeBytes=rawB64.length*0.75;
+      if(sizeBytes<4*1024*1024 && (file.type==='image/png'||file.name?.endsWith('.png'))){
+        resolve({b64:rawB64,mime:'image/png'});
+        return;
+      }
+      // Sinon, redimensionner avec fond blanc et envoyer en PNG si possible
+      const img=new Image();
+      img.onload=()=>{
+        let scale=1;
+        if(img.width>maxW) scale=maxW/img.width;
+        else if(img.width<minW) scale=Math.min(2,minW/img.width);
+        const cv=document.createElement('canvas');
+        cv.width=Math.round(img.width*scale);
+        cv.height=Math.round(img.height*scale);
+        const ctx=cv.getContext('2d');
+        ctx.fillStyle='#ffffff';
+        ctx.fillRect(0,0,cv.width,cv.height);
+        ctx.imageSmoothingEnabled=true;
+        ctx.imageSmoothingQuality='high';
+        ctx.drawImage(img,0,0,cv.width,cv.height);
+        // Essayer PNG d'abord (lossless, meilleur pour le texte)
+        const pngB64=cv.toDataURL('image/png').split(',')[1];
+        if(pngB64.length*0.75<4.5*1024*1024){
+          resolve({b64:pngB64,mime:'image/png'});
+        } else {
+          // Trop gros → JPEG haute qualité
+          resolve({b64:cv.toDataURL('image/jpeg',0.95).split(',')[1],mime:'image/jpeg'});
+        }
+      };
+      img.src=e.target.result;
+    };
+    r.readAsDataURL(file);
+  });
 }
-loadStores();
-if(typeof DOM_DATA==="undefined"){document.querySelector(".wrap").innerHTML='<div class="loading">⚠️ Erreur : fichier data.js non chargé.<br>Vérifiez que data.js est dans le même dossier que index.html.</div>';}
+
+// ── MULTI-CAPTURES ──
+window._ocrImages=[]; // {b64, mime, dataUrl}
+
+window.handleOcrFiles=async function(files){
+  if(!files||!files.length)return;
+  for(const file of files){
+    const {b64,mime}=await compressImage(file);
+    _ocrImages.push({b64,mime,dataUrl:'data:'+mime+';base64,'+b64});
+  }
+  renderGallery();
+  document.getElementById('ocr-file').value=''; // permettre de re-sélectionner
+};
+
+// Compat : ancien appel single-file (drag/paste)
+// Réduire une image pour le mode multi-capture (tenir sous la limite API)
+function reduceForMulti(b64,mime){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      const maxW=1500;
+      const scale=Math.min(1,maxW/img.width);
+      const cv=document.createElement('canvas');
+      cv.width=Math.round(img.width*scale);
+      cv.height=Math.round(img.height*scale);
+      const ctx=cv.getContext('2d');
+      ctx.fillStyle='#ffffff';ctx.fillRect(0,0,cv.width,cv.height);
+      ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+      ctx.drawImage(img,0,0,cv.width,cv.height);
+      // JPEG qualité 0.88 pour réduire le poids (texte reste lisible)
+      resolve({b64:cv.toDataURL('image/jpeg',0.88).split(',')[1],mime:'image/jpeg'});
+    };
+    img.src='data:'+mime+';base64,'+b64;
+  });
+}
+
+window.handleOcrFile=function(file){if(file)handleOcrFiles([file]);};
+
+function renderGallery(){
+  const g=document.getElementById('ocr-gallery');
+  const actions=document.getElementById('ocr-multi-actions');
+  if(!_ocrImages.length){
+    g.style.display='none';actions.style.display='none';return;
+  }
+  g.style.display='flex';actions.style.display='flex';
+  document.getElementById('capture-count').textContent=_ocrImages.length;
+  g.innerHTML=_ocrImages.map((img,i)=>`
+    <div style="position:relative;border:2px solid var(--border);border-radius:8px;overflow:hidden;width:120px;">
+      <img src="${img.dataUrl}" style="width:120px;height:80px;object-fit:cover;display:block;">
+      <div style="position:absolute;top:2px;left:4px;background:var(--accent);color:#000;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;">${i+1}</div>
+      <button onclick="removeCapture(${i})" style="position:absolute;top:2px;right:2px;background:rgba(220,40,60,.9);color:#fff;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:11px;line-height:1;">×</button>
+    </div>
+  `).join('');
+}
+
+window.removeCapture=function(i){_ocrImages.splice(i,1);renderGallery();};
+window.clearCaptures=function(){_ocrImages=[];renderGallery();document.getElementById('ocr-status').textContent='';};
+
+// ── ANALYSE DE TOUTES LES CAPTURES ENSEMBLE ──
+window.analyzeAllCaptures=async function(){
+  if(!_ocrImages.length){toast('Ajoutez au moins une capture','error');return;}
+  const apiKey=getApiKey();
+  if(!apiKey){toast(_currentUser==='Omar'?'Configurez la clé API (badge ⚠ en haut)':'Clé API non configurée — demandez à Omar','error');return;}
+
+  const status=document.getElementById('ocr-status');
+  status.className='ocr-status loading';
+  status.innerHTML='<div class="spinner"></div> Analyse de '+_ocrImages.length+' capture(s)...';
+
+  try{
+    const basePrompt=_currentSource==='dcsnet'?PROMPT_DCS:(_currentSource==='or'?PROMPT_OR:PROMPT_SAGA);
+    const multi=_ocrImages.length>1;
+    // Instruction multi-images
+    const multiNote=multi?`\n\n⚠ TRÈS IMPORTANT — LECTURE DE ${_ocrImages.length} IMAGES :
+Ces ${_ocrImages.length} images sont les PARTIES SUCCESSIVES d'un MÊME écran défilé (scroll vertical), dans l'ordre (image 1 = haut, image ${_ocrImages.length} = bas).
+- TU DOIS examiner et lire TOUTES les ${_ocrImages.length} images, pas seulement la première.
+- L'en-tête (site, N°OR, VIN, CCS, modèle) n'apparaît que sur l'image 1 — extrais-le de là.
+- Les lignes de pièces (Référence, Désignation, Montant) continuent à travers les images 2, 3... Lis-les TOUTES.
+- RASSEMBLE les lignes d'une même intervention (même lettre A/B/C) même réparties sur plusieurs images.
+- Si une intervention déborde d'une image à la suivante, fusionne-la en UNE seule intervention.
+- Additionne les montants de TOUTES les pièces lues sur TOUTES les images.\n`:'';
+
+    status.innerHTML='<div class="spinner"></div> Préparation des '+_ocrImages.length+' image(s)...';
+    // Recompresser pour tenir sous la limite API quand plusieurs images
+    const content=[];
+    for(let i=0;i<_ocrImages.length;i++){
+      let {b64,mime}=_ocrImages[i];
+      // En multi, réduire chaque image pour éviter de dépasser la limite API
+      if(multi){
+        const reduced=await reduceForMulti(b64,mime);
+        b64=reduced.b64;mime=reduced.mime;
+      }
+      if(multi){content.push({type:'text',text:`--- IMAGE ${i+1} sur ${_ocrImages.length} ---`});}
+      content.push({type:'image',source:{type:'base64',media_type:mime,data:b64}});
+    }
+    content.push({type:'text',text:basePrompt+multiNote});
+
+    status.innerHTML='<div class="spinner"></div> Analyse de '+_ocrImages.length+' capture(s)...';
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:4000,messages:[{role:'user',content}]})
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error.message);
+    let txt=data.content[0].text.trim().replace(/```json|```/g,'').trim();
+    const m=txt.match(/\{[\s\S]*\}/);
+    if(!m)throw new Error('Pas de JSON');
+    _ocrData=JSON.parse(m[0]);
+    normalizeInterventions(_ocrData);
+
+    // Vérification VIN sur la 1re image (en-tête)
+    const first=_ocrImages[0];
+    window._lastOcrB64=first.b64; window._lastOcrMime=first.mime;
+    if(_ocrData.vin&&_ocrData.vin.length>=10){
+      status.innerHTML='<div class="spinner"></div> Vérification du VIN (zoom ×4)...';
+      try{
+        const vinCropB64=await cropAndZoomVIN(first.b64,first.mime);
+        const vin1=_ocrData.vin.toUpperCase();
+        const vinCheck=await fetch('https://api.anthropic.com/v1/messages',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+          body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:300,temperature:0,messages:[{role:'user',content:[
+            {type:'image',source:{type:'base64',media_type:'image/png',data:vinCropB64}},
+            {type:'text',text:`TÂCHE : lire le numéro de châssis (VIN) dans cette image zoomée (17 caractères après "Châssis" ou "VIN").
+Lis CHAQUE caractère un par un. Format exact (17 lignes) :
+1:X
+2:X
+...
+17:X
+RÈGLES : un VIN ne contient JAMAIS O, I, Q (→ 0, 1, 9). Attention 8↔B, 5↔S, 2↔Z, D↔0, W↔VV. Préfixes : WVW,WV1,WV2,WAU,TMB,VSS,TRU,3VW.
+Rien d'autre que les 17 lignes.`}
+          ]}]})
+        });
+        const vinData=await vinCheck.json();
+        if(!vinData.error){
+          const vtxt=(vinData.content[0].text||'');
+          const chars={};
+          vtxt.split('\n').forEach(line=>{const mm=line.trim().match(/^(\d{1,2})\s*[:=\-–]\s*([A-Z0-9])/i);if(mm)chars[parseInt(mm[1])]=mm[2].toUpperCase();});
+          let vin2='';for(let i=1;i<=17;i++)vin2+=(chars[i]||'?');
+          if(vin2.length===17&&!vin2.includes('?')){
+            const final=vinConsensus(vin1,vin2);
+            if(final!==vin1){_ocrData.vin_original=vin1;_ocrData.vin_read2=vin2;_ocrData.vin=final;}
+          }
+        }
+      }catch(e){console.warn('VIN check:',e);}
+    }
+
+    const nbInterv=Array.isArray(_ocrData.interventions)?_ocrData.interventions.length:0;
+    status.className='ocr-status success';
+    const vinMsg=_ocrData.vin_original?' · VIN corrigé ✓':'';
+    status.textContent=`✓ Extraction réussie — ${nbInterv} intervention(s)${vinMsg}`;
+    document.getElementById('btn-create').style.display='block';
+    toast('Extraction réussie ('+_ocrImages.length+' capture(s))','success');
+  }catch(err){
+    status.className='ocr-status error';
+    status.textContent='Erreur : '+err.message;
+    toast('Erreur OCR','error');
+    console.error(err);
+  }
+};
+
+const PROMPT_DCS=`Analyse cette capture DCSnet Neo (logiciel DMS CDK, concessions Grand Est Automobiles).
+
+ZONES DE L'ÉCRAN :
+
+1. COIN HAUT-GAUCHE du bandeau turquoise : un CODE COMPTE en majuscules collées (ex: "GIDAAUDHOE", "GIDAVWBIS", "GIDAAUDOBE", "GIDASEAHOE", "GIDASKOHOE", "GIDAVWILL", "GIDAVWOBE")
+   - code_site = ce code exact (ex: "GIDAAUDOBE")
+
+2. BANDEAU TURQUOISE — il contient plusieurs champs étiquetés dans l'ordre :
+   [NOM_COMPTE]  N°OR [chiffres]  CCS [num] [NOM_CONSEILLER]  EQUIPE [code]  CAISSE [n]  ORV [marque-libellé]
+   - nor = CHIFFRES après l'étiquette "N°OR" (ex: 616110). JAMAIS le code imputation "90010 G".
+   - ccs = le NOM qui suit l'étiquette "CCS" et son numéro (ex: "CCS 09 FLORENT BATT" → "FLORENT BATT").
+     ⚠ Le champ CCS est entre "N°OR" et "EQUIPE". NE PAS confondre avec :
+       · le champ "EQUIPE" (ex: "ME") qui est un code court à droite du CCS → IGNORER
+       · le nom du client (bloc NOM/PRENOM plus bas) → IGNORER
+     Le CCS est toujours un NOM + PRÉNOM de conseiller précédé d'un numéro.
+
+3. LIGNE VÉHICULE : "VIN | IMMAT | N°FABR | MODELE/VERSION | DATE LIV | KILOM"
+   - vin = exactement 17 caractères alphanumériques (lettres majuscules + chiffres). Si un caractère est ambigu (0/O, 1/I, 8/B), préférer le chiffre. Jamais de lettre O, I ou Q dans un VIN.
+   - modele = contenu MODELE/VERSION
+   - kilometrage = KILOM chiffres
+   ⚠ DATE LIV = date de livraison du véhicule, PAS la date de l'OR. Ne PAS l'extraire.
+
+4. BLOC NOM/PRENOM/ADRESSE = CLIENT → IGNORER
+
+5. ZONE INTERVENTIONS (milieu de page) :
+   Chaque intervention a une lettre (A, B, C...) et un LIBELLÉ (ex: "Diagnostic", "Remplacement airbag").
+   À droite du libellé de l'intervention il y a une colonne "IMPUT." avec un CODE COMPTE (ex: "90000G", "90010G", "93OE") → CE N'EST PAS UN MONTANT, c'est un numéro de compte d'imputation. NE JAMAIS l'utiliser comme montant.
+
+   Sous chaque intervention, un TABLEAU DE PIÈCES avec ces colonnes de gauche à droite :
+   Référence | Désignation | Quantité | Prix Unitaire | % Remise | Code TVA | Montant
+   La colonne "Montant" est la TOUTE DERNIÈRE colonne à DROITE (ex: 37,60 ; 269,90 ; 4,68).
+
+   Pour CHAQUE intervention (A, B, C...), extraire :
+   - plainte = le libellé/diagnostic de l'intervention
+   - lignes = TABLEAU de TOUTES les pièces de cette intervention, une entrée par ligne du tableau de pièces :
+       [{"ref":"code Référence (1re colonne, ex 8P0898201A)", "montant": nombre de la DERNIÈRE colonne Montant à droite (ex 269.90)}]
+     ⚠ N'OUBLIE AUCUNE LIGNE. Liste-les TOUTES, même s'il y en a 20, 30 ou 40. Chaque ligne du tableau = une entrée.
+   - NE calcule PAS la somme toi-même, donne juste chaque ligne. Le total sera calculé automatiquement.
+
+   ⚠ RÈGLE CRITIQUE sur les montants :
+   - Le montant de chaque ligne vient UNIQUEMENT de la colonne "Montant" la plus à DROITE (ex: 269,90 ; 37,60 ; 4,68)
+   - Le code "90000G", "90010G", "93OE" de la colonne IMPUT. n'est JAMAIS un montant
+   - Si une intervention est un DIAGNOSTIC sans pièce facturée, lignes = [] (tableau vide)
+   - Convertis les virgules en points (269,90 → 269.90)
+   Liste TOUTES les interventions dans "interventions".
+
+6. SECTION IMPUTATIONS (bas, fond gris) : contient SEULEMENT le N° compte (ex: 90010 G), le site (ex: GARANTIE BISCHHEIM) et un statut. AUCUN montant ici.
+
+Retourne UNIQUEMENT ce JSON sans markdown :
+{"code_site":null,"nor":null,"ccs":null,"vin":null,"modele":null,"kilometrage":null,"interventions":[{"plainte":null,"lignes":[{"ref":null,"montant":null}]}]}
+Les montants sont des nombres décimaux (ex: 269.90). N'oublie AUCUNE ligne de pièce.`;
+
+const PROMPT_SAGA=`Analyse cette capture SAGA/2 (demandes de garantie VW Group).
+Colonnes: Fabricant|VIN|N Demande|N TPI|Date reception|Date reparation|Date soumission|Justifie|Valeur demande|Valeur note credit|Type demande|Code dommage|Code avarie|Code reparation|Numero cas|Code-barres|Niveau traitement
+Partenaire en haut = KVPs.
+Extrais la ligne sélectionnée (ou 1ère ligne). JSON sans markdown :
+{"nor":null,"vin":null,"date_reception":null,"date_reparation":null,"date_soumission":null,"valeur_demande":null,"code_dommage":null,"code_avarie":null,"type_demande":null,"niveau_traitement":null,"partenaire":null}`;
+
+const PROMPT_OR=`Analyse cet ORDRE DE RÉPARATION papier (document GEA - Grand Est Automobiles).
+
+STRUCTURE DU DOCUMENT :
+
+1. EN-TÊTE HAUT-GAUCHE : logo de marque + nom société + adresse
+   - Logo SKODA / "SKODA Service" → marque Skoda
+   - Logo 4 anneaux / "INGOLSTADT" → marque Audi
+   - Logo VW / "WOLFSBURG" → marque VW
+   - Logo SEAT / "SPORT" → marque SEAT
+   - Adresse ville : OBERNAI, ILLKIRCH, BISCHHEIM, HOENHEIM, STRASBOURG, MUTZIG...
+   → marque = "audi" / "vw" / "seat" / "skoda"
+   → ville = ville de l'adresse société (en haut à gauche, PAS l'adresse client)
+
+2. HAUT-DROITE : "OR N°" suivi du numéro + "Le [date] à [heure]"
+   - nor = numéro après "OR N°" (ex: 714525, 616197)
+
+3. BLOC NOM/ADRESSE (droite) = CLIENT → IGNORER (nom, adresse, email, tél du client)
+
+4. LIGNE INFOS VÉHICULE (milieu, cases) :
+   - Type = modèle (ex: "FABIA 1.0 TSI 11", "A6 Avant TDI2.0")
+   - Châssis = VIN 17 caractères (ex: TMBER6PJ8R4065083)
+   - Conseiller Client = numéro + NOM (ex: "12 FLORENT BRAULT" → "FLORENT BRAULT")
+   - Date/heure d'entrée = date OR (ex: 18/05/2026)
+   - Immatriculation, Mise en circulation, Km
+
+5. TABLEAU "TRAVAUX DEMANDÉS PAR LE CLIENT" :
+   Chaque intervention commence par une lettre (A:, B:, C:...).
+   - plainte = le texte des travaux demandés (ex: "A: DIAGNOSTIC", "LE CLIENT SIGNALE QUE L'ECRAN...")
+   - Regrouper les lignes de la même intervention (A) ensemble
+   - piece = le CODE de la colonne "CODIFICATION" (référence pièce alphanumérique, ex: "4F1880204J", "657035869", "1EA971675BH"). Si plusieurs, séparer par " / ". Ce n'est PAS la désignation textuelle (AIRBAG, ECROU...).
+   - Les codes de la colonne CODIFICATION sont des références pièces, PAS des montants
+   - PRIX TTC à droite = montant si présent (souvent vide sur exemplaire client → null)
+
+Retourne UNIQUEMENT ce JSON sans markdown :
+{"marque":null,"ville":null,"nor":null,"vin":null,"modele":null,"ccs":null,"date_or":null,"kilometrage":null,"interventions":[{"plainte":null,"piece":null,"montant":null}]}
+date_or au format JJ/MM/AAAA. montant = null si pas de prix TTC visible.`;
+
+// ── ÉTAPES ──
+window.goToStep2=function(){
+  // Si données OCR, afficher la popup de vérification d'abord
+  if(_ocrData&&(_ocrData.nor||_ocrData.vin||_ocrData.ccs)){
+    showVerifyPopup(_ocrData);
+    return;
+  }
+  // Sinon (saisie manuelle ou pas de données), aller directement au formulaire
+  proceedToStep2();
+};
+
+function proceedToStep2(){
+  fillFormFromOcr(_ocrData||{});
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='block';
+  document.getElementById('step1-ind').className='step done';
+  document.getElementById('step2-ind').className='step active';
+  document.getElementById('step3-ind').className='step';
+}
+
+// ── POPUP DE VÉRIFICATION OCR ──
+// Convertir le format lignes[] en piece+montant, avec addition fiable côté code
+function normalizeInterventions(data){
+  if(!data||!Array.isArray(data.interventions))return;
+  data.interventions.forEach(iv=>{
+    // Nouveau format : lignes[] avec {ref, montant}
+    if(Array.isArray(iv.lignes)&&iv.lignes.length){
+      // Références jointes
+      const refs=iv.lignes.map(l=>(l.ref||'').toString().trim()).filter(Boolean);
+      iv.piece=refs.join(' / ');
+      // Somme des montants (côté code = fiable)
+      let total=0;
+      iv.lignes.forEach(l=>{
+        let m=l.montant;
+        if(m===null||m===undefined||m==='')return;
+        // Convertir "269,90" → 269.90
+        m=parseFloat(m.toString().replace(/\s/g,'').replace(',','.'));
+        if(!isNaN(m))total+=m;
+      });
+      iv.montant=total>0?total.toFixed(2):'';
+      iv._nbLignes=iv.lignes.length;
+    }
+    // Ancien format (piece+montant direct) : laisser tel quel
+  });
+}
+
+function showVerifyPopup(d){
+  const SITE_MAP_REV={};
+  Object.entries(SITE_MAP).forEach(([k,v])=>{if(!SITE_MAP_REV[v])SITE_MAP_REV[v]=k;});
+  // Trouver le site
+  let siteVal='';
+  if(d.code_site){const code=(d.code_site||'').toUpperCase().replace(/[^A-Z]/g,'');siteVal=SITE_MAP[code]||'';}
+  if(!siteVal&&d.site)siteVal=SITE_MAP[(d.site||'').toUpperCase().trim()]||'';
+  if(!siteVal&&(d.marque||d.ville))siteVal=siteFromMarqueVille(d.marque,d.ville);
+  const siteName=SITE_SHORT[siteVal]||siteVal||'';
+  // CCS nettoyé
+  let ccs=(d.ccs||'').trim().replace(/^\d+\s+/,'');
+  // VIN
+  const vin=(d.vin||'').toUpperCase().trim();
+  const vinWarn=vin&&vin.length!==17?`Le VIN fait ${vin.length} caractères (attendu : 17)`:'';
+  const vinCorrected=d.vin_original&&d.vin_original!==vin;
+  // Préfixe VIN → marque connue
+  const VIN_PREFIXES={'WVW':'VW','WV1':'VW Utilitaire','WV2':'VW Utilitaire','WAU':'Audi','TMB':'Skoda','VSS':'SEAT','3VW':'VW (Mexique)','TRU':'Audi (Hongrie)'};
+  const vinPrefix=vin?VIN_PREFIXES[vin.slice(0,3)]||'':'';
+  const dateOr=d.date_or?convDate(d.date_or):'';
+  // Interventions
+  const intervs=Array.isArray(d.interventions)?d.interventions:[];
+
+  let html=`
+    <div class="verify-sep">Identification</div>
+    <div class="verify-field"><label>Site</label><input id="vf-site" value="${siteName.replace(/"/g,'&quot;')}" readonly style="background:var(--bg2);"></div>
+    <div class="verify-field"><label>N° OR</label><input id="vf-nor" value="${(d.nor||'').replace(/"/g,'&quot;')}"></div>
+    <div class="verify-field"><label>VIN (17 car.)</label>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input id="vf-vin" value="${vin.replace(/"/g,'&quot;')}" maxlength="17" style="font-size:15px;font-weight:700;letter-spacing:1.5px;flex:1;${vinWarn?'border-color:var(--warn);background:#2a1f0d;':'border-color:#00c89640;'}" oninput="checkVfVin()">
+        <button type="button" onclick="pasteVin()" style="padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);cursor:pointer;font-size:11px;white-space:nowrap;" title="Coller depuis le presse-papier">📋 Coller</button>
+      </div>
+    </div>
+    <div class="verify-field"><label></label><span id="vf-vin-warn" class="warn" style="${(vinWarn||vinCorrected)?'':'display:none;'}">⚠ Le VIN est souvent mal lu par l'OCR — vérifiez chaque caractère. ${vinWarn}</span></div>
+    ${vinCorrected?`<div class="verify-field"><label></label><span style="font-size:10px;color:var(--warn);">Lecture 1 : <s style="font-family:monospace;">${d.vin_original}</s><br>Lecture 2 : <span style="font-family:monospace;">${d.vin_read2||d.vin}</span><br>→ Consensus appliqué automatiquement</span></div>`:''}
+    ${vinPrefix?'<div class="verify-field"><label></label><span style="font-size:10px;color:var(--accent);">Préfixe '+vin.slice(0,3)+' → '+vinPrefix+'</span></div>':''}
+    <div class="verify-field"><label>Modèle</label><input id="vf-modele" value="${(d.modele||'').replace(/"/g,'&quot;')}"></div>
+    <div class="verify-field"><label>CCS</label><input id="vf-ccs" value="${ccs.replace(/"/g,'&quot;')}"></div>
+    <div class="verify-field"><label>KM</label><input id="vf-km" value="${(d.kilometrage||'').toString().replace(/"/g,'&quot;')}"></div>
+    <div class="verify-field"><label>Date OR</label><input id="vf-date" type="date" value="${dateOr}"></div>
+  `;
+  // Interventions
+  if(intervs.length){
+    html+=`<div class="verify-sep">Interventions (${intervs.length})</div>`;
+    intervs.forEach((iv,i)=>{
+      const letter=String.fromCharCode(65+i);
+      const mt=iv.montant||'';
+      // Nettoyer montant (filtre codes compte)
+      const cleanMt=(/^9\d{3,4}\s*[A-Za-z]?$/.test((mt||'').toString())||/[A-Za-z]/.test((mt||'').toString()))?'':mt;
+      const nbInfo=iv._nbLignes?` <span style="color:var(--accent);font-size:10px;">(${iv._nbLignes} pièce${iv._nbLignes>1?'s':''} additionnée${iv._nbLignes>1?'s':''})</span>`:'';
+      html+=`
+        <div class="verify-field"><label>${letter}. Plainte</label><textarea id="vf-pl-${i}" rows="2">${(iv.plainte||'').replace(/</g,'&lt;')}</textarea></div>
+        <div class="verify-field"><label>${letter}. Réf. pièce</label><input id="vf-pc-${i}" value="${(iv.piece||'').replace(/"/g,'&quot;')}"></div>
+        <div class="verify-field"><label>${letter}. Montant${nbInfo}</label><input id="vf-mt-${i}" value="${cleanMt}"></div>
+      `;
+    });
+  }
+  document.getElementById('ocr-verify-fields').innerHTML=html;
+  document.getElementById('ocr-verify-modal').classList.add('open');
+  // Stocker le nombre d'interventions pour la confirmation
+  window._verifyIntervCount=intervs.length;
+  window._verifySiteVal=siteVal;
+}
+
+window.confirmOcrData=function(){
+  // Récupérer les valeurs corrigées
+  const corrected={
+    nor:document.getElementById('vf-nor').value,
+    vin:document.getElementById('vf-vin').value,
+    modele:document.getElementById('vf-modele').value,
+    ccs:document.getElementById('vf-ccs').value,
+    kilometrage:document.getElementById('vf-km').value,
+    date_or:document.getElementById('vf-date').value,
+    interventions:[]
+  };
+  // Interventions
+  for(let i=0;i<(window._verifyIntervCount||0);i++){
+    corrected.interventions.push({
+      plainte:document.getElementById('vf-pl-'+i)?.value||'',
+      piece:document.getElementById('vf-pc-'+i)?.value||'',
+      montant:document.getElementById('vf-mt-'+i)?.value||''
+    });
+  }
+  // Garder le site déjà résolu
+  _ocrData=corrected;
+  _ocrData._resolvedSite=window._verifySiteVal||'';
+  // Fermer la popup
+  document.getElementById('ocr-verify-modal').classList.remove('open');
+  // Remplir le formulaire et passer à l'étape 2
+  proceedToStep2();
+};
+
+window.goToStep1=function(){
+
+// Coller le VIN depuis le presse-papier
+window.pasteVin=async function(){
+  try{
+    const txt=await navigator.clipboard.readText();
+    const clean=txt.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+    if(clean.length>=15&&clean.length<=17){
+      document.getElementById('vf-vin').value=clean;
+      checkVfVin();
+      toast('VIN collé : '+clean,'success');
+    } else {
+      toast('Le texte copié ne ressemble pas à un VIN ('+clean.length+' car.)','error');
+    }
+  }catch(e){toast('Impossible de lire le presse-papier','error');}
+};
+
+// Vérifier le VIN dans la popup en temps réel
+window.checkVfVin=function(){
+  const vin=document.getElementById('vf-vin').value.trim().toUpperCase();
+  const warn=document.getElementById('vf-vin-warn');
+  if(!warn)return;
+  const msgs=[];
+  if(vin&&vin.length!==17)msgs.push(`Le VIN fait ${vin.length} caractères (attendu : 17)`);
+  if(vin&&/[OIQ]/.test(vin))msgs.push('Le VIN contient O, I ou Q (interdit — probablement 0, 1 ou 9)');
+  const VIN_PREFIXES={'WVW':'VW','WV1':'VW Utilitaire','WV2':'VW Utilitaire','WAU':'Audi','TMB':'Skoda','VSS':'SEAT','3VW':'VW (Mexique)','TRU':'Audi (Hongrie)'};
+  const pref=vin?VIN_PREFIXES[vin.slice(0,3)]:'';
+  if(vin.length>=3&&!pref)msgs.push('Préfixe '+vin.slice(0,3)+' non reconnu (VW=WVW/WV2, Audi=WAU, Skoda=TMB, SEAT=VSS)');
+  if(msgs.length){
+    warn.style.display='block';
+    warn.innerHTML='⚠ '+msgs.join('<br>⚠ ');
+  } else {
+    warn.style.display=vin?'block':'none';
+    warn.innerHTML=vin?'✓ VIN valide'+(pref?' — '+pref:''):'';
+    warn.style.color=vin?'var(--accent)':'';
+  }
+};
+  document.getElementById('step1').style.display='block';
+  document.getElementById('step2').style.display='none';
+  document.getElementById('step1-ind').className='step active';
+  document.getElementById('step2-ind').className='step';
+};
+
+// ── SAISIE MANUELLE (sans OCR) ──
+window.manualForm=function(){
+  _ocrData={};
+  _editingDossierId=null;
+  // Réinitialiser les champs
+  ['f-nor','f-vin','f-modele','f-km','f-ccs','f-tech1','f-montant','f-date','f-heures'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.value='';el.classList.remove('filled');el.style.borderColor='';}
+  });
+  document.getElementById('f-site').value='';
+  document.getElementById('f-service').value='';
+  document.getElementById('f-typegar').value='';
+  document.getElementById('f-codedommage').value='';
+  document.getElementById('f-relances').value='0';
+  document.getElementById('f-defaut1').value='';
+  document.getElementById('f-defaut2').value='';
+  document.getElementById('f-correspondant').value=_currentUser||'';
+  document.getElementById('f-delai').value='';
+  document.getElementById('f-commentaires').value='';
+  resetStatuts();
+  clearInterventions();
+  addIntervention(); // un bloc vide à remplir
+  // Aller à l'étape 2
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='block';
+  document.getElementById('step1-ind').className='step done';
+  document.getElementById('step2-ind').className='step active';
+  document.getElementById('step3-ind').className='step';
+  toast('Saisie manuelle — remplissez les champs','info');
+};
+
+// ── INTERVENTIONS DYNAMIQUES ──
+let _intervCount=0;
+
+window.addIntervention=function(plainte='',piece='',montant='',factu=''){
+  // Si appelé via onclick, le 1er argument est un Event → ignorer
+  if(plainte&&typeof plainte==='object'){plainte='';piece='';montant='';factu='';}
+  _intervCount++;
+  const letter=String.fromCharCode(64+_intervCount); // A, B, C...
+  const id=_intervCount;
+  const div=document.createElement('div');
+  div.className='interv-block';
+  div.id='interv-'+id;
+  div.innerHTML=`
+    <div class="interv-head">
+      <div class="interv-letter">${letter}</div>
+      <button type="button" class="interv-del" onclick="delIntervention(${id})" title="Supprimer">×</button>
+    </div>
+    <div class="field">
+      <label>Plainte client / Diagnostic</label>
+      <textarea id="iv-plainte-${id}" rows="2">${plainte||''}</textarea>
+    </div>
+    <div class="field">
+      <label>Référence pièce</label>
+      <input type="text" id="iv-piece-${id}" value="${(piece||'').replace(/"/g,'&quot;')}">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div class="field">
+        <label>Montant (€)</label>
+        <input type="text" id="iv-montant-${id}" value="${montant||''}" placeholder="0,00" oninput="updateMontantTotal()">
+      </div>
+      <div class="field">
+        <label>Statut facturation</label>
+        <select id="iv-factu-${id}" onchange="colorFactu(this)">
+          <option value="">— Sélectionner —</option>
+          <option value="possible"${factu==='possible'?' selected':''}>Facturation possible</option>
+          <option value="facturegar"${factu==='facturegar'?' selected':''}>Facturé en garantie</option>
+          <option value="nonfacturable"${factu==='nonfacturable'?' selected':''}>Non facturable</option>
+          <option value="cession"${factu==='cession'?' selected':''}>Cession</option>
+        </select>
+      </div>
+    </div>
+  `;
+  document.getElementById('interventions-container').appendChild(div);
+  const sel=div.querySelector('select');
+  if(sel) colorFactu(sel);
+  updateMontantTotal();
+  return id;
+};
+
+// Colorer le select facturation
+window.colorFactu=function(el){
+  el.style.borderColor=''; el.style.color=''; el.style.background='';
+  if(el.value==='possible'){el.style.borderColor='#00c896';el.style.color='#00c896';el.style.background='#0d2a22';}
+  else if(el.value==='facturegar'){el.style.borderColor='#3498db';el.style.color='#5dade2';el.style.background='#0d1f2a';}
+  else if(el.value==='nonfacturable'){el.style.borderColor='#ff4d6a';el.style.color='#ff4d6a';el.style.background='#2a0d14';}
+  else if(el.value==='cession'){el.style.borderColor='#f5a623';el.style.color='#f5a623';el.style.background='#2a1f0d';}
+};
+
+// Recalculer le montant total depuis les interventions
+window.updateMontantTotal=function(){
+  const total=getInterventions().reduce((s,iv)=>s+(parseFloat((iv.montant||'0').toString().replace(',','.'))||0),0);
+  const el=document.getElementById('f-montant');
+  if(el) el.value=total>0?total.toFixed(2).replace('.',',')+' €':'';
+};
+
+let _lastDeleted=null; // dernière intervention supprimée (pour annuler)
+
+window.delIntervention=function(id){
+  const el=document.getElementById('interv-'+id);
+  if(el){
+    // Sauvegarder le contenu avant suppression
+    const plainte=el.querySelector('textarea')?.value||'';
+    const inputs=el.querySelectorAll('input');
+    const piece=inputs[0]?.value||'';
+    const montant=inputs[1]?.value||'';
+    const factu=el.querySelector('select')?.value||'';
+    _lastDeleted={plainte,piece,montant,factu};
+    el.remove();
+    showUndoBtn();
+  }
+  relabelInterventions();
+  updateMontantTotal();
+};
+
+// Bouton annuler (undo)
+function showUndoBtn(){
+  let btn=document.getElementById('undo-interv-btn');
+  if(!btn){
+    btn=document.createElement('button');
+    btn.id='undo-interv-btn';
+    btn.type='button';
+    btn.className='btn';
+    btn.style.cssText='margin-top:8px;margin-left:8px;font-size:12px;padding:6px 12px;background:#f5ecd0;color:#7a5c00;border-color:#e6a817;display:inline-flex;';
+    btn.innerHTML='↩ Annuler la suppression';
+    btn.onclick=undoDelete;
+    const addBtn=document.querySelector('button[onclick="addIntervention()"]');
+    if(addBtn&&addBtn.parentNode) addBtn.parentNode.insertBefore(btn,addBtn.nextSibling);
+  }
+  btn.style.display='inline-flex';
+  // Masquer après 15 secondes
+  clearTimeout(btn._t);
+  btn._t=setTimeout(()=>{btn.style.display='none';_lastDeleted=null;},15000);
+}
+
+window.undoDelete=function(){
+  if(_lastDeleted){
+    addIntervention(_lastDeleted.plainte,_lastDeleted.piece,_lastDeleted.montant,_lastDeleted.factu);
+    _lastDeleted=null;
+    const btn=document.getElementById('undo-interv-btn');
+    if(btn)btn.style.display='none';
+    toast('Intervention restaurée','success');
+  }
+};
+
+function relabelInterventions(){
+  const blocks=document.querySelectorAll('#interventions-container .interv-block');
+  blocks.forEach((b,i)=>{
+    const letterEl=b.querySelector('.interv-letter');
+    if(letterEl)letterEl.textContent=String.fromCharCode(65+i);
+  });
+}
+
+function clearInterventions(){
+  document.getElementById('interventions-container').innerHTML='';
+  _intervCount=0;
+}
+
+function getInterventions(){
+  const blocks=document.querySelectorAll('#interventions-container .interv-block');
+  const result=[];
+  blocks.forEach((b,i)=>{
+    const plainte=b.querySelector('textarea')?.value||'';
+    const inputs=b.querySelectorAll('input');
+    const piece=inputs[0]?.value||'';
+    const montant=inputs[1]?.value||'';
+    const factu=b.querySelector('select')?.value||'';
+    if(plainte||piece||montant){
+      result.push({letter:String.fromCharCode(65+i),plainte,piece,montant,factu});
+    }
+  });
+  return result;
+}
+
+function fillFormFromOcr(d){
+  const setV=(id,val)=>{if(!val)return;const el=document.getElementById(id);if(!el)return;el.value=val;el.classList.add('filled');};
+  setV('f-nor',d.nor);
+  setV('f-vin',d.vin);
+  setV('f-modele',d.modele);
+  setV('f-km',d.kilometrage);
+  // CCS : retirer le numéro de tête (ex: "60 MYLENE SCHEMER" → "MYLENE SCHEMER")
+  let ccs=(d.ccs||'').trim();
+  ccs=ccs.replace(/^\d+\s+/,'');
+  setV('f-ccs',ccs);
+  // Date OR : uniquement depuis l'Ordre de réparation papier (date_or)
+  // DCSnet n'a PAS de date OR (DATE LIV ≠ date OR)
+  if(d.date_or) setV('f-date',convDate(d.date_or));
+
+  // Nettoyer un montant qui serait en fait un code compte (90000G, 90010G...)
+  const cleanMontant=(m)=>{
+    if(!m)return'';
+    const s=m.toString().trim();
+    // Si ça ressemble à un code compte (9xxxx + lettre, ou contient une lettre)
+    if(/^9\d{3,4}\s*[A-Za-z]?$/.test(s)||/[A-Za-z]/.test(s)) return '';
+    return s;
+  };
+
+  // Interventions multiples
+  clearInterventions();
+  if(Array.isArray(d.interventions)&&d.interventions.length){
+    d.interventions.forEach(iv=>addIntervention(iv.plainte||'',iv.piece||iv.intervention||'',cleanMontant(iv.montant),iv.factu||''));
+  } else if(d.plainte||d.intervention){
+    addIntervention(d.plainte||'',d.intervention||'',cleanMontant(d.montant));
+  } else {
+    addIntervention(); // bloc vide
+  }
+
+  // Site — 0) site résolu depuis la popup de vérification, 1) code GIDA (DCSnet), 2) nom GARANTIE, 3) marque+ville (OR papier)
+  let siteVal=d._resolvedSite||'';
+  if(!siteVal&&d.code_site){
+    const code=(d.code_site||'').toUpperCase().replace(/[^A-Z]/g,'');
+    siteVal=SITE_MAP[code]||'';
+  }
+  if(!siteVal&&d.site){
+    siteVal=SITE_MAP[(d.site||'').toUpperCase().trim()]||'';
+  }
+  if(!siteVal&&(d.marque||d.ville)){
+    siteVal=siteFromMarqueVille(d.marque,d.ville);
+  }
+  if(siteVal){
+    const siteEl=document.getElementById('f-site');
+    siteEl.value=siteVal;
+    if(siteEl.value) siteEl.classList.add('filled');
+  }
+}
+
+// Convertir une date JJ/MM/AAAA → AAAA-MM-JJ pour input date
+function convDate(s){
+  if(!s)return'';
+  s=s.toString().trim();
+  // déjà au format AAAA-MM-JJ
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const m=s.match(/^(\d{1,2})[\/.](\d{1,2})[\/.](\d{4})/);
+  if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  return '';
+}
+
+// Déterminer le site depuis marque + ville (ordre de réparation papier)
+function siteFromMarqueVille(marque,ville){
+  const m=(marque||'').toLowerCase();
+  const v=(ville||'').toUpperCase();
+  if(m.includes('audi')){
+    if(v.includes('OBERNAI')) return 'Audi_Obernai';
+    return 'Audi_Hoenheim';
+  }
+  if(m.includes('seat')) return 'Seat_Hoenheim';
+  if(m.includes('skoda')) return 'Skoda_Hoenheim';
+  if(m.includes('vw')||m.includes('volkswagen')){
+    if(v.includes('OBERNAI')) return 'VW_Obernai';
+    if(v.includes('BISCHHEIM')) return 'VW_Bischheim';
+    return 'VW_Illkirch';
+  }
+  // fallback par ville seule
+  if(v.includes('OBERNAI')) return 'VW_Obernai';
+  if(v.includes('BISCHHEIM')) return 'VW_Bischheim';
+  if(v.includes('ILLKIRCH')) return 'VW_Illkirch';
+  return '';
+}
+
+// ── STATUTS TOGGLE ──
+// Règles d'exclusion pour le GROUPE 1 (statut dossier) : incomplet et nonfact sont mutuellement exclusifs
+// Les issues (retourconc/agarantie/fcession_issue) sont mutuellement exclusives entre elles
+const ISSUES_INCOMPLET=['retourconc','agarantie'];       // incomplet → retour concession ou à la garantie
+const ISSUES_NONFACT=['retourconc','fcession_issue'];    // non facturable → retour concession ou cession
+
+window.toggleStatut=function(key){
+  const btn=document.getElementById('tog-'+key);
+  if(!btn||btn.classList.contains('disabled'))return;
+
+  // GROUPE 1 principal : incomplet / nonfact sont exclusifs
+  if(key==='incomplet'||key==='nonfact'){
+    const other=key==='incomplet'?'nonfact':'incomplet';
+    _statuts[key]=!_statuts[key];
+    if(_statuts[key]){ // si on active, désactiver l'autre + ses issues
+      _statuts[other]=false;
+      // Réinitialiser les issues incompatibles
+      ['retourconc','agarantie','fcession_issue'].forEach(iss=>{_statuts[iss]=false;});
+    } else {
+      // Si on désactive le statut dossier, vider aussi les issues
+      ['retourconc','agarantie','fcession_issue'].forEach(iss=>{_statuts[iss]=false;});
+    }
+  }
+  // ISSUES : mutuellement exclusives entre elles
+  else if(['retourconc','agarantie','fcession_issue'].includes(key)){
+    const wasOn=_statuts[key];
+    ['retourconc','agarantie','fcession_issue'].forEach(iss=>{_statuts[iss]=false;});
+    _statuts[key]=!wasOn;
+  }
+  else {
+    _statuts[key]=!_statuts[key];
+  }
+  refreshStatutButtons();
+};
+
+function refreshStatutButtons(){
+  // Mettre à jour l'état visuel de tous les boutons
+  Object.keys(_statuts).forEach(k=>{
+    const btn=document.getElementById('tog-'+k);
+    if(btn) btn.classList.toggle('active',_statuts[k]);
+  });
+
+  // Afficher la zone des issues si incomplet OU nonfact actif
+  const issuesZone=document.getElementById('issues-zone');
+  const showIssues=_statuts.incomplet||_statuts.nonfact;
+  if(issuesZone) issuesZone.style.display=showIssues?'block':'none';
+
+  // Logique intelligente : afficher seulement les issues cohérentes
+  const allowedIssues=_statuts.incomplet?ISSUES_INCOMPLET:(_statuts.nonfact?ISSUES_NONFACT:[]);
+  ['retourconc','agarantie','fcession_issue'].forEach(iss=>{
+    const b=document.getElementById('tog-'+iss);
+    if(!b)return;
+    if(allowedIssues.includes(iss)){
+      b.style.display='';
+    } else {
+      b.style.display='none';
+      _statuts[iss]=false;b.classList.remove('active');
+    }
+  });
+
+  // Afficher délai + commentaires si un statut dossier est actif
+  const show=(_statuts.incomplet||_statuts.nonfact);
+  const delaiWrap=document.getElementById('delai-wrap');
+  if(delaiWrap) delaiWrap.style.display=show?'flex':'none';
+  const commWrap=document.getElementById('comment-wrap');
+  if(commWrap) commWrap.style.display=show?'flex':'none';
+}
+
+// Compat : applyExclusion appelé ailleurs → rediriger
+function applyExclusion(){refreshStatutButtons();}
+
+function resetStatuts(){
+  Object.keys(_statuts).forEach(k=>{
+    _statuts[k]=false;
+    const btn=document.getElementById('tog-'+k);
+    if(btn){btn.classList.remove('active');btn.classList.remove('disabled');}
+  });
+}
+
+// ── SAVE ──
+let _saving=false;
+let _editingDossierId=null; // id Firebase si on édite un dossier existant
+
+window.saveDossier=function(){
+  if(_saving){return;} // anti double-clic
+
+  // ── Validation champs obligatoires ──
+  const nor=document.getElementById('f-nor').value.trim();
+  const site=document.getElementById('f-site').value;
+  const vin=document.getElementById('f-vin').value.trim();
+  const ccs=document.getElementById('f-ccs').value.trim();
+  const defaut1=document.getElementById('f-defaut1').value;
+  const auStatut=Object.values(_statuts).some(v=>v);
+
+  const manquants=[];
+  const flag=(id,ok)=>{const el=document.getElementById(id);if(el)el.style.borderColor=ok?'':'var(--danger)';};
+  flag('f-site',!!site); if(!site)manquants.push('Site');
+  flag('f-nor',!!nor); if(!nor)manquants.push('N°OR');
+  flag('f-vin',!!vin); if(!vin)manquants.push('Châssis');
+  flag('f-ccs',!!ccs); if(!ccs)manquants.push('CCS');
+  flag('f-defaut1',!!defaut1); if(!defaut1)manquants.push('Défaut');
+
+  if(!auStatut){
+    manquants.push('au moins 1 statut');
+    document.querySelector('.statuts-grid').style.outline='1px solid var(--danger)';
+    document.querySelector('.statuts-grid').style.borderRadius='6px';
+  } else {
+    document.querySelector('.statuts-grid').style.outline='';
+  }
+
+  if(manquants.length){
+    toast('Champs obligatoires manquants : '+manquants.join(', '),'error');
+    return;
+  }
+
+  // Clé unique basée sur SITE + N°OR (deux sites peuvent avoir le même N°OR)
+  const norKey=nor.replace(/[.#$\[\]\/\s]/g,'_');
+  const siteKey=(site||'').replace(/[.#$\[\]\/\s]/g,'_');
+  // Chercher un dossier existant : même site ET même OR
+  const existant=Object.values(window._dossiers).find(d=>(d.nor||'').trim()===nor&&(d.site||'')===site);
+  if(existant && !_editingDossierId){
+    if(!confirm('Un dossier avec le N°OR '+nor+' existe déjà pour ce site. Le mettre à jour ?')){
+      return;
+    }
+  }
+
+  _saving=true;
+  const btn=document.getElementById('btn-save');
+  if(btn){btn.disabled=true;btn.style.opacity='.5';btn.textContent='Enregistrement...';}
+
+  // Préserver les infos de création si édition (chercher par _id existant en priorité)
+  const ancien=existant||(_editingDossierId&&window._dossiers[_editingDossierId])||{};
+
+  const interventionsList=getInterventions();
+  const montantTotal=interventionsList.reduce((s,iv)=>s+(parseFloat((iv.montant||'0').toString().replace(',','.'))||0),0);
+
+  const obj={
+    nor, site, vin, ccs,
+    modele:document.getElementById('f-modele').value,
+    kilometrage:document.getElementById('f-km').value,
+    tech1:document.getElementById('f-tech1').value,
+    typegar:document.getElementById('f-typegar').value,
+    codedommage:document.getElementById('f-codedommage').value,
+    montant:montantTotal>0?montantTotal.toFixed(2):'',
+    delai:document.getElementById('f-delai').value,
+    commentaires:document.getElementById('f-commentaires').value,
+    date:document.getElementById('f-date').value,
+    service:document.getElementById('f-service').value,
+    typegar:document.getElementById('f-typegar').value,
+    codedommage:document.getElementById('f-codedommage').value,
+    interventions:interventionsList,
+    correspondant:document.getElementById('f-correspondant').value,
+    relances:document.getElementById('f-relances').value,
+    defaut1,
+    defaut2:document.getElementById('f-defaut2').value,
+    heures:document.getElementById('f-heures').value,
+    ..._statuts,
+    _createdBy:ancien._createdBy||_currentUser||'',
+    _ts:ancien._ts||Date.now(),
+    dateControle:ancien.dateControle||ancien._ts||Date.now()
+  };
+  // Si c'est une modification, ajouter date + auteur de modif
+  if(ancien._ts){
+    obj._modifiedBy=_currentUser||'';
+    obj._modifiedTs=Date.now();
+  }
+
+  // Clé : réutiliser l'_id du dossier existant (compat anciens 'OR_xxx'), sinon créer 'SITE_OR'
+  let key;
+  if(existant&&existant._id)key=existant._id;
+  else if(_editingDossierId)key=_editingDossierId;
+  else key=siteKey+'_OR_'+norKey;
+  const fbKey='controle_garantie/'+key;
+  // Sauvegarde avec fallback file d'attente hors-ligne
+  saveWithQueue(fbKey,obj,existant);
+};
+
+// ── FILE D'ATTENTE HORS-LIGNE ──
+function getQueue(){try{return JSON.parse(localStorage.getItem('gea_sync_queue')||'[]');}catch(e){return[];}}
+function setQueue(q){localStorage.setItem('gea_sync_queue',JSON.stringify(q));updateQueueBadge();}
+
+function saveWithQueue(fbKey,obj,existant){
+  const btn=document.getElementById('btn-save');
+  const onOk=()=>{
+    toast(existant?'Dossier mis à jour ✓':'Dossier enregistré ✓','success');
+    clearDraft();
+    document.getElementById('step2-ind').className='step done';
+    document.getElementById('step3-ind').className='step active';
+    _saving=false;
+    if(btn){btn.disabled=false;btn.style.opacity='1';btn.textContent='💾 Enregistrer';}
+  };
+  const onQueue=(reason)=>{
+    // Ajouter à la file d'attente locale
+    const q=getQueue();
+    q.push({fbKey,obj,ts:Date.now()});
+    setQueue(q);
+    toast('⚠ Hors-ligne — dossier sauvé localement, sync auto dès reconnexion','info');
+    clearDraft();
+    document.getElementById('step2-ind').className='step done';
+    document.getElementById('step3-ind').className='step active';
+    _saving=false;
+    if(btn){btn.disabled=false;btn.style.opacity='1';btn.textContent='💾 Enregistrer';}
+    console.warn('Mise en file:',reason);
+  };
+
+  if(!window._db||!navigator.onLine){onQueue('pas de connexion');return;}
+
+  // Timeout de sécurité : si Firebase ne répond pas en 8s → file d'attente
+  let done=false;
+  const timer=setTimeout(()=>{if(!done){done=true;onQueue('timeout Firebase');}},8000);
+
+  window._set(window._ref(window._db,fbKey),obj)
+    .then(()=>{if(!done){done=true;clearTimeout(timer);onOk();}})
+    .catch(err=>{if(!done){done=true;clearTimeout(timer);onQueue(err.message);}});
+}
+
+// Synchroniser la file d'attente
+function syncQueue(){
+  if(!window._db||!navigator.onLine)return;
+  const q=getQueue();
+  if(!q.length)return;
+  let remaining=[...q];
+  const next=()=>{
+    if(!remaining.length){
+      setQueue([]);
+      toast(q.length+' dossier(s) synchronisé(s) ✓','success');
+      if(typeof renderList==='function')renderList();
+      return;
+    }
+    const item=remaining[0];
+    window._set(window._ref(window._db,item.fbKey),item.obj)
+      .then(()=>{remaining.shift();setQueue(remaining);next();})
+      .catch(()=>{
+        // Échec : on garde l'élément en file mais on arrête (réessai au prochain cycle)
+        setQueue(remaining);
+        console.warn('Sync interrompue, réessai plus tard');
+      });
+  };
+  next();
+}
+
+function updateQueueBadge(){
+  const badge=document.getElementById('queue-badge');
+  if(!badge)return;
+  const n=getQueue().length;
+  if(n>0){
+    badge.style.display='inline-block';
+    badge.textContent='⏳ '+n+' en attente de sync';
+    badge.onclick=syncQueue;
+  } else {
+    badge.style.display='none';
+  }
+}
+
+// Sync auto quand la connexion revient
+window.addEventListener('online',()=>{toast('Connexion rétablie — synchronisation...','info');setTimeout(syncQueue,1000);});
+window.addEventListener('offline',()=>{toast('⚠ Connexion perdue — mode hors-ligne actif','info');});
+
+// ── PDF ──
+// ── ENREGISTRER PDF (boîte "Enregistrer sous") ──
+async function savePdfAs(doc,filename){
+  const blob=doc.output('blob');
+  // Chrome/Edge : showSaveFilePicker → choix du dossier
+  if(window.showSaveFilePicker){
+    try{
+      const handle=await window.showSaveFilePicker({
+        suggestedName:filename,
+        types:[{description:'PDF',accept:{'application/pdf':['.pdf']}}]
+      });
+      const writable=await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    }catch(e){
+      // L'utilisateur a annulé → ne rien faire
+      if(e.name==='AbortError')return;
+      console.warn('showSaveFilePicker échoué, fallback:',e);
+    }
+  }
+  // Fallback (Firefox ou erreur) : téléchargement classique
+  doc.save(filename);
+}
+
+// ── CAPTURE D'ÉCRAN (motif du retour) ──
+window._captureDataUrl=null;
+
+window.handleCapturePaste=function(e){
+  const items=(e.clipboardData||e.originalEvent.clipboardData).items;
+  for(const item of items){
+    if(item.type.indexOf('image')!==-1){
+      e.preventDefault();
+      readCaptureBlob(item.getAsFile());
+      return;
+    }
+  }
+};
+window.handleCaptureFile=function(file){
+  if(file&&file.type.startsWith('image/'))readCaptureBlob(file);
+};
+function readCaptureBlob(blob){
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const maxW=1400;
+      const scale=img.width>maxW?maxW/img.width:1;
+      const cv=document.createElement('canvas');
+      cv.width=Math.round(img.width*scale);cv.height=Math.round(img.height*scale);
+      const ctx=cv.getContext('2d');
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+      ctx.drawImage(img,0,0,cv.width,cv.height);
+      window._captureDataUrl=cv.toDataURL('image/jpeg',0.85);
+      window._captureW=cv.width;   // dimensions mémorisées (fiable pour le PDF)
+      window._captureH=cv.height;
+      const prev=document.getElementById('capture-preview');
+      prev.src=window._captureDataUrl;prev.style.display='block';
+      document.getElementById('capture-placeholder').style.display='none';
+      document.getElementById('capture-actions').style.display='block';
+      toast('Capture ajoutée ✓','success');
+    };
+    img.onerror=()=>toast('Image illisible, réessayez','error');
+    img.src=ev.target.result;
+  };
+  reader.onerror=()=>toast('Lecture image échouée','error');
+  reader.readAsDataURL(blob);
+}
+window.clearCapture=function(){
+  window._captureDataUrl=null;
+  window._captureW=null;window._captureH=null;
+  const prev=document.getElementById('capture-preview');
+  if(prev){prev.src='';prev.style.display='none';}
+  const ph=document.getElementById('capture-placeholder');if(ph)ph.style.display='block';
+  const ca=document.getElementById('capture-actions');if(ca)ca.style.display='none';
+  const cf=document.getElementById('capture-file');if(cf)cf.value='';
+};
+// Collage global : si on est dans l'étape 2 et qu'on colle une image, l'ajouter à la capture
+document.addEventListener('paste',e=>{
+  const step2=document.getElementById('step2');
+  if(!step2||step2.style.display==='none')return;
+  // Ne pas interférer avec le collage de texte dans les champs
+  const items=(e.clipboardData||{}).items||[];
+  for(const item of items){
+    if(item.type.indexOf('image')!==-1){
+      readCaptureBlob(item.getAsFile());
+      e.preventDefault();
+      return;
+    }
+  }
+});
+
+window.generatePDF=async function(){
+  const nor=document.getElementById('f-nor').value||'—';
+  const vin=document.getElementById('f-vin').value||'—';
+  const site=document.getElementById('f-site').value||'—';
+  const date=document.getElementById('f-date').value||'—';
+  let ccs=(document.getElementById('f-ccs').value||'—').replace(/^\d+\s+/,'');
+  const modele=document.getElementById('f-modele').value||'—';
+  const interventions=getInterventions();
+  // Montant total = somme des montants valides des interventions
+  const montantTot=interventions.reduce((s,iv)=>s+(parseFloat((iv.montant||'0').toString().replace(',','.'))||0),0);
+  const montant=montantTot>0?montantTot.toFixed(2).replace('.',','):'—';
+  const delai=document.getElementById('f-delai').value||'';
+  const typegar=document.getElementById('f-typegar').value||'';
+  const commentaires=document.getElementById('f-commentaires').value||'';
+  const def1=document.getElementById('f-defaut1').value||'';
+  const def2=document.getElementById('f-defaut2').value||'';
+  // Format date AAAA/MM/JJ (depuis input date AAAA-MM-JJ)
+  const fmtDateSlash=dateFR;
+  const statutsActifsKeys=Object.entries(_statuts).filter(([,v])=>v).map(([k])=>k);
+  const statutsActifs=statutsActifsKeys.map(k=>STATUT_LABELS[k]);
+
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  const W=210; // largeur A4
+  let y=0;
+
+  // Helper hex → rgb
+  const rgb=(hex)=>{const h=hex.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];};
+
+  // ── EN-TÊTE BLANC (économe en encre) ──
+  doc.setTextColor(20,25,40);
+  doc.setFontSize(15);doc.setFont('helvetica','bold');
+  doc.text('CONTRÔLE GARANTIE',105,14,{align:'center'});
+  doc.setTextColor(0,160,130);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');
+  doc.text('GEA · TeamGarantie — Grand Est Automobiles',105,20,{align:'center'});
+  // Ligne turquoise sous le titre
+  doc.setDrawColor(0,180,140);doc.setLineWidth(0.8);doc.line(15,25,195,25);
+  y=34;
+
+  // ── CARTOUCHE IDENTIFICATION ──
+  const cardId=(label,val,bold=false)=>{
+    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(130,140,160);
+    doc.text(label,18,y);
+    doc.setFontSize(9);doc.setFont('helvetica',bold?'bold':'normal');doc.setTextColor(30,35,50);
+    doc.text(String(val||'—'),70,y);
+    y+=6;
+  };
+  // titre section
+  const section=(txt,color=[0,153,255])=>{
+    y+=2;
+    doc.setFillColor(color[0],color[1],color[2]);
+    doc.rect(15,y-4,3,5.5,'F');
+    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(30,35,50);
+    doc.text(txt,21,y);
+    y+=7;
+  };
+
+  // ── BANDEAU "DOSSIER FACTURABLE" EN HAUT ──
+  if(delai){
+    const dateStr=fmtDateSlash(delai);
+    doc.setFillColor(232,245,238);
+    doc.rect(13,y-3,184,8,'F');
+    doc.setFillColor(29,158,117);doc.rect(13,y-3,3,8,'F');
+    const txtAvant='Dossier facturable jusqu\'au ';
+    const txtApres=' (jour compris)';
+    doc.setFont('helvetica','bold');doc.setFontSize(9);
+    const wAvant=doc.getTextWidth(txtAvant);
+    doc.setFontSize(10);const wDate=doc.getTextWidth(dateStr);
+    let x=20;const yb=y+2.5;
+    doc.setFontSize(9);doc.setTextColor(15,110,86);doc.text(txtAvant,x,yb);x+=wAvant;
+    doc.setFontSize(10);doc.setTextColor(245,150,20);doc.text(dateStr,x,yb);x+=wDate;
+    doc.setFontSize(9);doc.setTextColor(15,110,86);doc.text(txtApres,x,yb);
+    y+=11;
+  }
+
+  // ── IDENTIFICATION EN 2 COLONNES ──
+  section('Identification du dossier',[24,95,165]);
+  const codedommage=(document.getElementById('f-codedommage').value||'').trim().toUpperCase();
+  const champs=[
+    ['N° OR',nor,true],['Site',SITE_SHORT[site]||site,false],
+    ['Châssis (VIN)',vin,false],['CCS',ccs,false],
+    ['Date OR',fmtDateSlash(date),false],['Montant total',montant!=='—'?montant+' €':'—',true],
+  ];
+  if(typegar)champs.push(['Type de garantie',typegar,false]);
+  if(codedommage)champs.push(['Code dommage',codedommage,false]);
+  const nbLignes=Math.ceil(champs.length/2);
+  const cardH=nbLignes*6+5;
+  doc.setDrawColor(220,225,232);doc.setLineWidth(0.3);
+  doc.roundedRect(13,y-3,184,cardH,2,2,'S');
+  y+=1;
+  const colX=[18,108];
+  const colVX=[53,148];
+  for(let i=0;i<champs.length;i++){
+    const [label,val,bold]=champs[i];
+    const col=i%2;
+    const ly=y+Math.floor(i/2)*6;
+    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(130,140,160);
+    doc.text(label,colX[col],ly);
+    doc.setFontSize(9);doc.setFont(label==='Code dommage'?'courier':'helvetica',bold?'bold':'normal');
+    if(label==='Montant total')doc.setTextColor(0,180,140);
+    else if(label==='Type de garantie')doc.setTextColor(0,110,200);
+    else doc.setTextColor(30,35,50);
+    const v=String(val||'—');
+    const vTrunc=v.length>24?v.slice(0,23)+'…':v;
+    doc.text(vTrunc,colVX[col],ly);
+  }
+  y+=nbLignes*6+4;
+
+
+  // ── INTERVENTIONS ──
+  const FACTU=  {possible:{l:'Facturation possible',c:'#00c896'},facturegar:{l:'Facturé en garantie',c:'#3498db'},nonfacturable:{l:'Non facturable',c:'#ff4d6a'},cession:{l:'Cession',c:'#f5a623'}};
+  section('Interventions',[0,153,255]);
+  if(interventions.length){
+    interventions.forEach(iv=>{
+      if(y>262){doc.addPage();y=20;}
+      // pastille lettre
+      doc.setFillColor(0,153,255);
+      doc.circle(19,y-1,3,'F');
+      doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont('helvetica','bold');
+      doc.text(iv.letter,19,y+0.8,{align:'center'});
+      // montant à droite (rouge si négatif)
+      if(iv.montant){
+        const mv=parseFloat((iv.montant||'0').toString().replace(',','.'))||0;
+        if(mv<0)doc.setTextColor(255,77,106);else doc.setTextColor(30,35,50);
+        doc.setFontSize(10);doc.setFont('helvetica','bold');
+        doc.text(iv.montant+' €',193,y,{align:'right'});
+      }
+      // texte plainte + pièce
+      doc.setTextColor(40,45,60);doc.setFontSize(9);doc.setFont('helvetica','normal');
+      const pieceTxt=iv.piece?(' — '+iv.piece):'';
+      const plLines=doc.splitTextToSize((iv.plainte||'')+pieceTxt,150);
+      doc.text(plLines,25,y);
+      y+=Math.max(4.5,plLines.length*4.5);
+      // badge statut facturation coloré
+      if(iv.factu&&FACTU[iv.factu]){
+        const fc=rgb(FACTU[iv.factu].c);
+        const txt=FACTU[iv.factu].l;
+        doc.setFontSize(8);doc.setFont('helvetica','bold');
+        const tw=doc.getTextWidth(txt)+6;
+        doc.setFillColor(fc[0],fc[1],fc[2]);
+        doc.roundedRect(25,y-3.5,tw,5,1,1,'F');
+        doc.setTextColor(255,255,255);
+        doc.text(txt,28,y);
+        y+=6;
+      }
+      y+=3;
+      // séparateur léger
+      doc.setDrawColor(230,234,240);doc.setLineWidth(0.2);doc.line(15,y-2,195,y-2);
+    });
+  } else {
+    doc.setFontSize(10);doc.setTextColor(150,155,170);doc.text('Aucune intervention',22,y);y+=6;
+  }
+  y+=4;
+
+  // ── STATUTS (dossier + facturation séparés) ──
+  if(y>240){doc.addPage();y=20;}
+  const drawBadges=(keys)=>{
+    let x=18;
+    keys.forEach(k=>{
+      const c=rgb(STATUT_COLORS[k]||'#8a9ab5');
+      const txt=STATUT_LABELS[k];
+      doc.setFontSize(8);doc.setFont('helvetica','bold');
+      const tw=doc.getTextWidth(txt)+7;
+      if(x+tw>195){x=18;y+=8;}
+      doc.setFillColor(c[0],c[1],c[2]);
+      doc.roundedRect(x,y-3.5,tw,5.5,1.5,1.5,'F');
+      doc.setTextColor(255,255,255);
+      doc.text(txt,x+3.5,y);
+      x+=tw+4;
+    });
+    y+=8;
+  };
+  const dossierKeys=statutsActifsKeys.filter(k=>GROUPE_DOSSIER.includes(k));
+  const factuKeys=statutsActifsKeys.filter(k=>GROUPE_FACTURATION.includes(k));
+
+  section('Statut du dossier',[245,166,35]);
+  if(dossierKeys.length) drawBadges(dossierKeys);
+  else {doc.setFontSize(9);doc.setTextColor(150,155,170);doc.text('Aucun',22,y);y+=7;}
+
+  if(factuKeys.length){
+    if(y>255){doc.addPage();y=20;}
+    section('Statut facturation',[52,152,219]);
+    drawBadges(factuKeys);
+    // Raison temps supp si présente
+    const raison=document.getElementById('f-raison-temps')?document.getElementById('f-raison-temps').value:'';
+    if(_statuts.temps&&raison){
+      doc.setFontSize(8.5);doc.setFont('helvetica','italic');doc.setTextColor(110,120,140);
+      const rl=doc.splitTextToSize('Raison temps supp. : '+raison,175);
+      doc.text(rl,18,y);y+=rl.length*4.5+2;
+    }
+  }
+
+  // ── DÉFAUTS ──
+  if(y>250){doc.addPage();y=20;}
+  section('Défauts identifiés',[163,45,45]);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');
+  if(def1){doc.setTextColor(40,45,60);doc.text('1.  '+def1,22,y);y+=5;}
+  if(def2){doc.setTextColor(40,45,60);doc.text('2.  '+def2,22,y);y+=5;}
+  if(!def1&&!def2){doc.setTextColor(150,155,170);doc.text('Aucun défaut sélectionné',22,y);y+=5;}
+
+  // ── COMMENTAIRES (avant la capture) ──
+  if(commentaires){
+    y+=3;
+    if(y>255){doc.addPage();y=20;}
+    doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(110,120,140);
+    doc.text('Commentaires :',18,y);y+=5;
+    doc.setFont('helvetica','normal');doc.setTextColor(40,45,60);doc.setFontSize(9);
+    const cLines=doc.splitTextToSize(commentaires,175);
+    doc.text(cLines,18,y);y+=cLines.length*4.5+2;
+  }
+
+  // ── CAPTURE D'ÉCRAN (motif du retour) ──
+  if(window._captureDataUrl&&window._captureW&&window._captureH){
+    y+=4;
+    try{
+      const iw=window._captureW, ih=window._captureH;
+      // Taille réduite pour tenir sur 1 page : largeur max 120mm, hauteur max selon place restante
+      const maxW=120;
+      const placeRestante=Math.max(40,283-y-8); // espace jusqu'au bas de page
+      const maxH=Math.min(95,placeRestante);
+      let w=maxW, h=w*ih/iw;
+      if(h>maxH){h=maxH;w=h*iw/ih;}
+      w=Math.round(w);h=Math.round(h);
+      // Titre zone capture (bandeau orange)
+      doc.setFillColor(133,79,11);doc.rect(15,y-4,3,5.5,'F');
+      doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(133,79,11);
+      doc.text('Capture — Motif du retour',21,y);
+      y+=5;
+      // Cadre + image centrée
+      const imgX=Math.round((210-w)/2);
+      doc.setDrawColor(201,184,150);doc.setLineWidth(0.4);
+      doc.roundedRect(imgX-2,y-2,w+4,h+4,2,2,'S');
+      doc.addImage(window._captureDataUrl,'JPEG',imgX,y,w,h,undefined,'FAST');
+      y+=h+6;
+    }catch(e){console.warn('Capture PDF ignorée:',e);toast('La capture n\'a pas pu être ajoutée au PDF','info');}
+  }
+
+  // Nom fichier : Controle_Garantie_KVPS_OR_chassis.pdf
+  const kvps=SITE_KVPS[site]||'00000';
+  const pdfNom=`Controle_Garantie_${kvps}_${nor}_${vin}.pdf`;
+
+  return {doc,pdfNom,site,nor,vin,modele,montant,delai,typegar,def1,def2,statutsActifs};
+};
+
+// Ouvrir le mailto si incomplet/non facturable
+function openMailtoIfNeeded(ctx,force){
+  // Mail si dossier incomplet OU non facturable, OU si forcé (bouton dédié)
+  if(!force&&!_statuts.incomplet&&!_statuts.nonfact)return;
+  const {pdfNom,site,nor,vin,modele,montant,delai,typegar,def1,def2}=ctx;
+  const fmtDateSlash=dateFR;
+  const commentaires=document.getElementById('f-commentaires').value||'';
+  // Convertir le texte en gras + italique Unicode (𝙩𝙚𝙭𝙩𝙚) — visible même en mail texte brut
+  const toBoldItalic=(str)=>{
+    let out='';
+    for(const ch of str){
+      const code=ch.codePointAt(0);
+      if(code>=65&&code<=90){out+=String.fromCodePoint(0x1D63C+(code-65));}      // A-Z → 𝘼-𝙕
+      else if(code>=97&&code<=122){out+=String.fromCodePoint(0x1D656+(code-97));} // a-z → 𝙖-𝙯
+      else if(code>=48&&code<=57){out+=String.fromCodePoint(0x1D7CE+(code-48));}  // 0-9 → 𝟎-𝟗 (gras)
+      else{out+=ch;}
+    }
+    return out;
+  };
+  let motif='DOSSIER NON CONFORME';
+  if(_statuts.nonfact)motif='DOSSIER NON FACTURABLE';
+  else if(_statuts.incomplet)motif='DOSSIER NON CONFORME';
+  if(_statuts.retourconc)motif+=' - RETOUR CONCESSION';
+  else if(_statuts.agarantie)motif+=' - A LA GARANTIE';
+  else if(_statuts.fcession_issue)motif+=' - FACTURE CESSION';
+  const sujet=`${SITE_SHORT[site]||site}_${nor}_${vin}_${motif}`; // sujet inchangé
+  // Texte adapté selon le statut : 'non conforme' (incomplet) ou 'non facturable'
+  const qualif=_statuts.nonfact?'non facturable':'non conforme';
+  const corps=`Salut,\n\nDossier ${toBoldItalic(qualif)} à la garantie (voir PJ)\n\nCordialement\n${_currentUser||'—'}\nTeamGarantie — Grand Est Automobiles`;
+  const mailtoUrl=`mailto:?cc=${encodeURIComponent('teamgarantie@geauto.fr')}&subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
+  setTimeout(()=>{
+    const a=document.createElement('a');a.href=mailtoUrl;a.style.display='none';
+    document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),500);
+  },800);
+}
+
+// ── SAUVEGARDER PDF (choix du dossier) ──
+window.savePDF=async function(){
+  const ctx=await generatePDF();
+  if(!ctx)return;
+  await savePdfAs(ctx.doc,ctx.pdfNom);
+  toast('PDF enregistré ✓','success');
+};
+
+// ── IMPRIMER (ouvre la fenêtre d'impression directement) ──
+window.printPDF=async function(){
+  const ctx=await generatePDF();
+  if(!ctx)return;
+  const blob=ctx.doc.output('blob');
+  const url=URL.createObjectURL(blob);
+  // Iframe caché → lance directement la boîte de dialogue d'impression
+  const iframe=document.createElement('iframe');
+  iframe.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  iframe.src=url;
+  document.body.appendChild(iframe);
+  iframe.onload=()=>{
+    setTimeout(()=>{
+      try{iframe.contentWindow.focus();iframe.contentWindow.print();}
+      catch(e){
+        // Fallback : fenêtre séparée
+        const win=window.open(url,'_blank');
+        if(win){win.onload=()=>{win.focus();win.print();};}
+      }
+      setTimeout(()=>{iframe.remove();URL.revokeObjectURL(url);},60000);
+    },300);
+  };
+  toast('Impression lancée...','info');
+};
+
+// ── ENVOYER MAIL (bouton dédié) ──
+window.sendMail=async function(){
+  const ctx=await generatePDF();
+  if(!ctx)return;
+  // Forcer l'ouverture du mail même si pas incomplet/nonfact
+  openMailtoIfNeeded(ctx,true);
+  toast('Email ouvert — joignez le PDF si besoin','info');
+};
+
+// ── Alias pour generatePDFFromDetail ──
+window.printPDFFromDetail=async function(id){
+  const d=window._dossiers[id];
+  if(!d)return;
+  loadDossierIntoForm(d);
+  await printPDF();
+};
+window.sendMailFromDetail=async function(id){
+  const d=window._dossiers[id];
+  if(!d)return;
+  loadDossierIntoForm(d);
+  await sendMail();
+};
+
+// ── OPTION 3 : RACCOURCIS CLAVIER ──
+document.addEventListener('keydown',e=>{
+  if(!_currentUser)return;
+  const step2=document.getElementById('step2');
+  const inStep2=step2&&step2.style.display!=='none';
+  // Ctrl+S = Enregistrer
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){
+    e.preventDefault();
+    if(inStep2)saveDossier();
+  }
+  // Ctrl+P = PDF (sauvegarder)
+  if((e.ctrlKey||e.metaKey)&&e.key==='p'){
+    e.preventDefault();
+    if(inStep2)savePDF();
+  }
+  // Échap = fermer modal ouverte
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'));
+  }
+  // Ctrl+Entrée dans la popup VIN = confirmer
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){
+    const vm=document.getElementById('ocr-verify-modal');
+    if(vm&&vm.classList.contains('open')){e.preventDefault();confirmOcrData();}
+  }
+});
+
+// Dossier suivant : enregistrer puis nouveau formulaire vierge
+window.nextDossier=function(){
+  resetForm();
+  _ocrData=null;_editingDossierId=null;
+  if(typeof clearCaptures==='function')clearCaptures();
+  document.getElementById('btn-create').style.display='none';
+  // Revenir à l'étape 1 (OCR)
+  document.getElementById('step1').style.display='block';
+  document.getElementById('step2').style.display='none';
+  document.getElementById('step3')&&(document.getElementById('step3').style.display='none');
+  document.getElementById('step1-ind').className='step active';
+  document.getElementById('step2-ind').className='step';
+  document.getElementById('step3-ind').className='step';
+  const ocrZone=document.getElementById('ocr-preview');if(ocrZone)ocrZone.style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+  toast('Prêt pour un nouveau dossier','info');
+};
+
+// ── OPTION 3 : AUTO-COMPLÉTION CCS / MODÈLES déjà saisis ──
+function buildAutocomplete(){
+  const dossiers=Object.values(window._dossiers||{});
+  // CCS
+  const ccsList=[...new Set(dossiers.map(d=>d.ccs).filter(Boolean))].sort();
+  let dl=document.getElementById('ccs-list');
+  if(!dl){dl=document.createElement('datalist');dl.id='ccs-list';document.body.appendChild(dl);}
+  dl.innerHTML=ccsList.map(v=>`<option value="${v.replace(/"/g,'&quot;')}">`).join('');
+  const ccsEl=document.getElementById('f-ccs');if(ccsEl)ccsEl.setAttribute('list','ccs-list');
+  // Modèles
+  const modList=[...new Set(dossiers.map(d=>d.modele).filter(Boolean))].sort();
+  let dl2=document.getElementById('modele-list');
+  if(!dl2){dl2=document.createElement('datalist');dl2.id='modele-list';document.body.appendChild(dl2);}
+  dl2.innerHTML=modList.map(v=>`<option value="${v.replace(/"/g,'&quot;')}">`).join('');
+  const modEl=document.getElementById('f-modele');if(modEl)modEl.setAttribute('list','modele-list');
+}
+
+// ── RESET ──
+window.resetForm=function(){
+  clearDraft();
+  if(window.clearCapture)clearCapture();
+  ['f-nor','f-vin','f-modele','f-km','f-ccs','f-tech1','f-montant','f-date','f-heures'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.value='';el.classList.remove('filled');}
+  });
+  document.getElementById('f-site').value='';
+  document.getElementById('f-service').value='';
+  document.getElementById('f-typegar').value='';
+  document.getElementById('f-codedommage').value='';
+  document.getElementById('f-relances').value='0';
+  document.getElementById('f-defaut1').value='';
+  document.getElementById('f-defaut2').value='';
+  document.getElementById('f-correspondant').value=_currentUser||'';
+  document.getElementById('f-delai').value='';
+  document.getElementById('f-commentaires').value='';
+  document.getElementById('delai-wrap').style.display='none';
+  document.getElementById('comment-wrap').style.display='none';
+  resetStatuts();
+  clearInterventions();
+  _ocrData={};
+  _editingDossierId=null;
+  goToStep1();
+  document.getElementById('ocr-preview').style.display='none';
+  document.getElementById('ocr-status').className='ocr-status';
+  document.getElementById('btn-create').style.display='none';
+  document.getElementById('step1-ind').className='step active';
+  document.getElementById('step2-ind').className='step';
+  document.getElementById('step3-ind').className='step';
+};
+
+// ── LISTE ──
+let _sortBy='_ts', _sortDir=-1;
+window.sortList=function(col){
+  if(_sortBy===col){_sortDir=-_sortDir;}else{_sortBy=col;_sortDir=col==='_ts'?-1:1;}
+  renderList();
+};
+
+// ── OPTION 2 : STATS PERSONNELLES (semaine en cours) ──
+function renderMyStats(){
+  const box=document.getElementById('my-stats');
+  if(!box||!_currentUser)return;
+  const all=Object.values(window._dossiers||{});
+  const weekAgo=Date.now()-7*864e5;
+  const mine=all.filter(d=>d._createdBy===_currentUser&&(d._ts||0)>=weekAgo);
+  const mineMontant=mine.reduce((s,d)=>s+(parseFloat((d.montant||'0').toString().replace(',','.'))||0),0);
+  const incomplets=mine.filter(d=>d.incomplet).length;
+  const nonfact=mine.filter(d=>d.nonfact).length;
+  const rattrap=mine.filter(d=>d.rattrapage);
+  const rattrapMontant=rattrap.reduce((s,d)=>s+(parseFloat((d.montant||'0').toString().replace(',','.'))||0),0);
+
+  const card=(label,val,color)=>`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;border-left:3px solid ${color};">
+    <div style="font-size:20px;font-weight:700;color:${color};">${val}</div>
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;">${label}</div>
+  </div>`;
+
+  box.innerHTML=
+    card('Mes contrôles (7j)',mine.length,'#5b9bd5')+
+    card('Montant contrôlé',Math.round(mineMontant).toLocaleString('fr-FR')+' €','#00c896')+
+    card('Rattrapés',rattrap.length+' · '+Math.round(rattrapMontant).toLocaleString('fr-FR')+'€','#f5c842')+
+    card('Incomplets',incomplets,'#ffe066')+
+    card('Non facturables',nonfact,'#ff4d6a');
+}
+
+// ── COMPTEURS WORKFLOW (en attente garantie / retournés) ──
+// ── PANNEAU DE RAPPEL : dossiers retour concession non revenus depuis +4 jours ──
+const RELANCE_DELAI_JOURS=3; // délai de relance en jours
+// Intervalles de relance progressifs (jours depuis la date de contrôle)
+// 1er rappel à J+3, 2e à J+5 (+2), 3e à J+6 (+1). Après le 3e → clôture "non revenu".
+const RELANCE_PALIERS=[3,5,6];
+
+function getDossiersARelancer(){
+  const all=Object.values(window._dossiers||{});
+  const now=Date.now();
+  const facturationDone=d=>GROUPE_FACTURATION.some(k=>d[k]);
+  const res=all.filter(d=>{
+    if(!d.retourconc)return false;       // doit être en retour concession
+    if(d.nonrevenu)return false;         // déjà clôturé "non revenu"
+    if(facturationDone(d))return false;  // a un statut facturation → traité
+    const base=d.dateControle||d._ts||0;
+    if(!base)return false;
+    const joursEcoules=joursEcoules_safe(Math.floor((now-base)/864e5));
+    const nb=d._nbRelances||0;           // nombre de rappels déjà envoyés
+    if(nb>=RELANCE_PALIERS.length)return false; // 3 rappels faits → plus de relance
+    const seuil=RELANCE_PALIERS[nb];     // palier absolu à atteindre (depuis date contrôle)
+    if(joursEcoules<seuil)return false;  // palier pas encore atteint
+    // Anti-réapparition immédiate : si déjà relancé, attendre au moins 1 jour depuis le dernier rappel
+    if(d._lastRelanceTs){
+      const joursDepuisRelance=Math.floor((now-d._lastRelanceTs)/864e5);
+      if(joursDepuisRelance<1)return false; // relancé il y a moins d'un jour → patienter
+    }
+    return true;
+  });
+  console.log(`[Relance] ${all.length} dossiers, ${res.length} à relancer (paliers J+${RELANCE_PALIERS.join(', J+')})`);
+  return res;
+}
+function joursEcoules_safe(j){return isNaN(j)?0:j;}
+
+// Clôture automatique des dossiers ayant épuisé les 3 rappels et toujours pas revenus
+function cloturerDossiersNonRevenus(){
+  const all=Object.values(window._dossiers||{});
+  const now=Date.now();
+  const facturationDone=d=>GROUPE_FACTURATION.some(k=>d[k]);
+  const aCloturer=all.filter(d=>{
+    if(!d.retourconc||d.nonrevenu||facturationDone(d))return false;
+    const base=d.dateControle||d._ts||0;
+    if(!base)return false;
+    const jours=Math.floor((now-base)/864e5);
+    const nb=d._nbRelances||0;
+    // 3 rappels envoyés ET dernier palier dépassé → clôture
+    return nb>=RELANCE_PALIERS.length && jours>RELANCE_PALIERS[RELANCE_PALIERS.length-1];
+  });
+  aCloturer.forEach(d=>{
+    const obj={...d,nonrevenu:true,_clotureTs:now,_clotureBy:'Auto (relances épuisées)'};
+    delete obj._id;
+    if(window._db)window._set(window._ref(window._db,'controle_garantie/'+d._id),obj);
+  });
+  if(aCloturer.length)console.log(`[Relance] ${aCloturer.length} dossier(s) clôturé(s) "non revenu"`);
+}
+
+function renderRelancePanel(){
+  const panel=document.getElementById('relance-panel');
+  if(!panel)return;
+  const aRelancer=getDossiersARelancer();
+  if(!aRelancer.length){panel.style.display='none';return;}
+  panel.style.display='block';
+  // Grouper par site
+  const parSite={};
+  aRelancer.forEach(d=>{const s=d.site||'?';(parSite[s]=parSite[s]||[]).push(d);});
+  const ordinal=['1er','2e','3e'];
+  // Un bouton par site (envoi individuel = fiable)
+  const sitesHtml=Object.entries(parSite).map(([s,arr])=>{
+    const kvps=SITE_KVPS[s]||'?????';
+    // Répartition des rappels dans ce site (combien de 1er, 2e, 3e)
+    const paliers={};
+    arr.forEach(d=>{const n=(d._nbRelances||0);paliers[n]=(paliers[n]||0)+1;});
+    const detail=Object.entries(paliers).sort((a,b)=>a[0]-b[0]).map(([n,c])=>`${c}×${ordinal[n]||(parseInt(n)+1)+'e'}`).join(', ');
+    return `<button onclick="sendRelanceSite('${s}')" style="display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid #e67e22;border-radius:8px;padding:8px 12px;margin:3px;font-size:12px;cursor:pointer;color:var(--text);" title="${detail} rappel">
+      ✉ ${SITE_SHORT[s]||s} <span style="color:var(--text3);">(${kvps})</span> <strong style="color:#e67e22;">${arr.length}</strong> <span style="color:var(--text3);font-size:10px;">${detail}</span>
+    </button>`;
+  }).join('');
+  panel.innerHTML=`
+    <div style="background:#2a1f0d;border:1px solid #e67e22;border-radius:10px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:14px;font-weight:700;color:#e67e22;">⚠ ${aRelancer.length} dossier(s) en attente de retour</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:4px;margin-bottom:8px;">Rappels progressifs : 1er à J+3, 2e à J+5, 3e à J+6 (depuis la date de contrôle). Après le 3e sans retour → clôturé "non revenu". Cliquez sur un site pour envoyer son rappel :</div>
+      <div>${sitesHtml}</div>
+    </div>`;
+}
+
+// Envoyer le mail de relance pour UN site (fiable : un seul mailto)
+window.sendRelanceSite=function(site){
+  const aRelancer=getDossiersARelancer().filter(d=>(d.site||'?')===site);
+  if(!aRelancer.length){toast('Aucun dossier pour ce site','info');return;}
+  const kvps=SITE_KVPS[site]||'?????';
+  const siteName=SITE_SHORT[site]||site;
+  const sujet=`RELANCE GARANTIE - ${siteName} (${kvps}) - ${aRelancer.length} dossier(s) en attente`;
+  const lignes=aRelancer.map(d=>{
+    const ref=d._lastRelanceTs||d.dateControle||d._ts||0;
+    const jours=Math.floor((Date.now()-ref)/864e5);
+    const dejaRelance=d._lastRelanceTs?' (déjà relancé)':'';
+    return `  • N°OR ${d.nor||'—'} · VIN ${d.vin||'—'} · ${d.ccs||'—'} · en attente depuis ${jours} j${dejaRelance}`;
+  }).join('\n');
+  const corps=`Bonjour,\n\nLes dossiers suivants ont été retournés en concession (${siteName} - KVPS ${kvps}) et sont toujours en attente de retour :\n\n──────────────────────────────\n${lignes}\n──────────────────────────────\n\nMerci de nous retourner ces dossiers complétés dans les meilleurs délais.\n\nCordialement,\n${_currentUser||'—'}\nTeamGarantie — Grand Est Automobiles`;
+  // teamgarantie en destinataire principal (plus fiable que cc sur mailto)
+  const mailtoUrl=`mailto:${encodeURIComponent('teamgarantie@geauto.fr')}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
+  const a=document.createElement('a');a.href=mailtoUrl;a.style.display='none';
+  document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),500);
+
+  // Marquer ces dossiers comme relancés : incrémenter le compteur de rappels
+  const now=Date.now();
+  const updates=aRelancer.map(d=>{
+    const nb=(d._nbRelances||0)+1;
+    const obj={...d,_lastRelanceTs:now,_lastRelanceBy:_currentUser,_nbRelances:nb};
+    delete obj._id;
+    // Mise à jour LOCALE immédiate (le bouton disparaît tout de suite, sans attendre Firebase)
+    if(window._dossiers[d._id]){
+      window._dossiers[d._id]._lastRelanceTs=now;
+      window._dossiers[d._id]._lastRelanceBy=_currentUser;
+      window._dossiers[d._id]._nbRelances=nb;
+    }
+    return window._db?window._set(window._ref(window._db,'controle_garantie/'+d._id),obj):Promise.resolve();
+  });
+  // Rafraîchir tout de suite (données locales déjà à jour)
+  renderRelancePanel();
+  Promise.all(updates).then(()=>{
+    toast(`Rappel ${siteName} envoyé (${aRelancer.length} dossier(s))`,'success');
+    renderRelancePanel();
+  }).catch(err=>{toast('Mail ouvert, erreur marquage : '+err.message,'info');});
+};
+
+function renderWorkflowCounters(){
+  const box=document.getElementById('workflow-counters');
+  if(!box)return;
+  const all=Object.values(window._dossiers||{});
+  // En attente à la garantie : statut agarantie ET pas encore de statut facturation renseigné
+  const facturationDone=d=>GROUPE_FACTURATION.some(k=>d[k]);
+  const attenteGar=all.filter(d=>d.agarantie&&!facturationDone(d)).length;
+  // Retournés en concession (issue retour concession)
+  const retournes=all.filter(d=>d.retourconc).length;
+  // Facturés (depuis statut facturation)
+  const facturesGar=all.filter(d=>d.facturegar).length;
+  const facturesCess=all.filter(d=>d.fcession||d.fcession_issue).length;
+
+  const card=(label,val,color)=>`<div onclick="quickFilterWorkflow('${label}')" style="cursor:pointer;background:${color}15;border:1px solid ${color}40;border-left:3px solid ${color};border-radius:8px;padding:8px 14px;">
+    <span style="font-size:18px;font-weight:700;color:${color};">${val}</span>
+    <span style="font-size:11px;color:var(--text2);margin-left:6px;">${label}</span>
+  </div>`;
+
+  box.innerHTML=
+    card('En attente à la garantie',attenteGar,'#3498db')+
+    card('Retournés en concession',retournes,'#e67e22')+
+    card('Facturés garantie',facturesGar,'#2ecc71')+
+    card('Facturés cession',facturesCess,'#f5a623');
+}
+
+// Filtre rapide en cliquant sur un compteur
+window.quickFilterWorkflow=function(label){
+  const statutSel=document.getElementById('lf-statut');
+  if(!statutSel)return;
+  const map={
+    'En attente à la garantie':'agarantie',
+    'Retournés en concession':'retourconc',
+    'Facturés garantie':'facturegar',
+    'Facturés cession':'fcession'
+  };
+  if(map[label]){statutSel.value=map[label];renderList();}
+};
+
+window.renderList=function(){
+  const fSite=document.getElementById('lf-site')?.value||'';
+  const fStat=document.getElementById('lf-statut')?.value||'';
+  const fSearch=(document.getElementById('lf-search')?.value||'').toLowerCase();
+  const fPeriode=document.getElementById('lf-periode')?.value||'';
+  const fAuthor=document.getElementById('lf-author')?.value||'';
+
+  let data=Object.values(window._dossiers);
+  if(fSite) data=data.filter(d=>d.site===fSite);
+  if(fStat) data=data.filter(d=>d[fStat]);
+  // Filtre période
+  if(fPeriode){
+    const now=Date.now();
+    const ranges={today:864e5,week:7*864e5,month:30*864e5};
+    if(fPeriode==='today'){
+      const t=new Date();t.setHours(0,0,0,0);
+      data=data.filter(d=>(d._ts||0)>=t.getTime());
+    } else {
+      data=data.filter(d=>(d._ts||0)>=now-ranges[fPeriode]);
+    }
+  }
+  // Filtre auteur
+  if(fAuthor){
+    const author=fAuthor==='__me__'?_currentUser:fAuthor;
+    data=data.filter(d=>d._createdBy===author);
+  }
+  if(fSearch) data=data.filter(d=>
+    (d.nor||'').toLowerCase().includes(fSearch)||
+    (d.vin||'').toLowerCase().includes(fSearch)||
+    (d.ccs||'').toLowerCase().includes(fSearch)||
+    (d.correspondant||'').toLowerCase().includes(fSearch)||
+    (d.modele||'').toLowerCase().includes(fSearch)||
+    (d.date||'').toLowerCase().includes(fSearch)||
+    (d._createdBy||'').toLowerCase().includes(fSearch)||
+    (d.defaut1||'').toLowerCase().includes(fSearch));
+  // Tri configurable
+  data=data.sort((a,b)=>{
+    let va=a[_sortBy],vb=b[_sortBy];
+    if(_sortBy==='_ts'||_sortBy==='montant'){
+      va=parseFloat((va||'0').toString().replace(',','.'))||0;
+      vb=parseFloat((vb||'0').toString().replace(',','.'))||0;
+      return (va-vb)*_sortDir;
+    }
+    va=(va||'').toString().toLowerCase();vb=(vb||'').toString().toLowerCase();
+    return va<vb?-_sortDir:va>vb?_sortDir:0;
+  });
+
+  document.getElementById('kl-total').textContent=data.length;
+  document.getElementById('kl-risque').textContent=data.filter(d=>d.risque).length;
+  document.getElementById('kl-annul').textContent=data.filter(d=>d.annul).length;
+  document.getElementById('kl-sauv').textContent=data.filter(d=>d.sauvee).length;
+  document.getElementById('kl-rattrap').textContent=data.filter(d=>d.rattrapage).length;
+  document.getElementById('list-count').textContent=data.length+' dossiers';
+  updateDailyCount();
+  buildAutocomplete();
+  renderMyStats();
+  renderWorkflowCounters();
+  cloturerDossiersNonRevenus();
+  renderRelancePanel();
+  updateConnDot();
+
+  const tbody=document.getElementById('list-tbody');
+  if(!data.length){
+    tbody.innerHTML='<tr class="empty-row"><td colspan="12">Aucun dossier</td></tr>';
+    return;
+  }
+  tbody.innerHTML=data.map(d=>{
+    const badge=(k)=>`<span class="sbadge" style="background:${STATUT_COLORS[k]}20;color:${STATUT_COLORS[k]};border:1px solid ${STATUT_COLORS[k]}40;">${STATUT_LABELS[k]}</span>`;
+    const statDossier=GROUPE_DOSSIER.filter(k=>d[k]).map(badge).join('');
+    const statFactu=GROUPE_FACTURATION.filter(k=>d[k]).map(badge).join('');
+    return `<tr onclick="showDetail('${d._id}')">
+      <td style="white-space:nowrap;">${SITE_SHORT[d.site]||d.site||'—'}</td>
+      <td class="mono">${d.nor||'—'}</td>
+      <td class="mono" style="font-size:9px;">${d.vin||'—'}</td>
+      <td style="font-size:10px;">${d.ccs||'—'}</td>
+      <td class="mono" style="white-space:nowrap;">${d.montant||'—'} €</td>
+      <td>${statDossier||'<span style="color:var(--text3);">—</span>'}</td>
+      <td>${statFactu||'<span style="color:var(--text3);">—</span>'}</td>
+      <td style="font-size:10px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${d.defaut1||''}">${d.defaut1||'—'}</td>
+      <td style="font-size:10px;">${d.correspondant||'—'}</td>
+      <td style="font-size:10px;white-space:nowrap;">${dateFR(d.date)}</td>
+      <td style="font-size:10px;white-space:nowrap;color:var(--text2);">${d.dateControle?new Date(d.dateControle).toLocaleDateString('fr-FR'):(d._ts?new Date(d._ts).toLocaleDateString('fr-FR'):'—')}</td>
+    </tr>`;
+  }).join('');
+};
+
+// ── DÉTAIL ──
+// ── STATUT FACTURATION (éditable depuis le détail, 2e contrôle) ──
+let _detailFactuState={};
+window.toggleDetailFactu=function(key){
+  _detailFactuState[key]=!_detailFactuState[key];
+  const btn=document.getElementById('df-'+key);
+  if(btn) btn.classList.toggle('active',_detailFactuState[key]);
+  // Afficher la raison si temps coché
+  if(key==='temps'){
+    const wrap=document.getElementById('detail-raison-wrap');
+    if(wrap) wrap.style.display=_detailFactuState.temps?'block':'none';
+  }
+};
+
+window.saveDetailFactu=function(id){
+  const d=window._dossiers[id];
+  if(!d){toast('Dossier introuvable','error');return;}
+  const raison=document.getElementById('detail-raison')?document.getElementById('detail-raison').value:'';
+  // Fusionner les statuts facturation dans le dossier
+  const obj={...d};
+  GROUPE_FACTURATION.forEach(k=>{obj[k]=!!_detailFactuState[k];});
+  obj.raison_temps=raison;
+  obj._modifiedBy=_currentUser;obj._modifiedTs=Date.now();
+  delete obj._id;
+  const fbKey='controle_garantie/'+id;
+  if(window._db&&navigator.onLine){
+    window._set(window._ref(window._db,fbKey),obj)
+      .then(()=>{toast('Statut facturation enregistré ✓','success');closeDetail();})
+      .catch(err=>{toast('Erreur : '+err.message,'error');});
+  } else {
+    const q=getQueue();q.push({fbKey,obj,ts:Date.now()});setQueue(q);
+    toast('Hors-ligne — statut sauvé localement','info');closeDetail();
+  }
+};
+
+window.showDetail=function(id){
+  const d=window._dossiers[id];
+  if(!d)return;
+  _detailId=id;
+  document.getElementById('detail-title').textContent='Dossier N°'+d.nor+' — '+(SITE_SHORT[d.site]||d.site||'');
+  const statActifs=Object.entries(STATUT_LABELS).filter(([k])=>d[k]);
+  document.getElementById('detail-body').innerHTML=`
+    <div class="detail-row"><div class="detail-label">N° OR</div><div class="detail-val" style="font-family:'IBM Plex Mono',monospace;font-weight:600;">${d.nor||'—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Site</div><div class="detail-val">${SITE_SHORT[d.site]||d.site||'—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Châssis</div><div class="detail-val" style="font-family:'IBM Plex Mono',monospace;">${d.vin||'—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Modèle</div><div class="detail-val">${d.modele||'—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Date OR</div><div class="detail-val">${dateFR(d.date)}</div></div>
+    <div class="detail-row"><div class="detail-label">Date contrôle</div><div class="detail-val" style="color:var(--accent);">${d.dateControle?new Date(d.dateControle).toLocaleDateString('fr-FR'):(d._ts?new Date(d._ts).toLocaleDateString('fr-FR'):'—')}</div></div>
+    <div class="detail-row"><div class="detail-label">CCS</div><div class="detail-val">${d.ccs||'—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Montant</div><div class="detail-val">${d.montant||'—'} €</div></div>
+    ${d.typegar?`<div class="detail-row"><div class="detail-label">Type garantie</div><div class="detail-val" style="color:#0a6ec8;font-weight:600;">${d.typegar}</div></div>`:''}
+    ${d.codedommage?`<div class="detail-row"><div class="detail-label">Code dommage</div><div class="detail-val" style="font-family:'IBM Plex Mono',monospace;font-weight:600;">${d.codedommage}</div></div>`:''}
+    <div class="detail-row"><div class="detail-label">Interventions</div><div class="detail-val">${(Array.isArray(d.interventions)&&d.interventions.length)?d.interventions.map(iv=>{const fl={possible:'Facturation possible',facturegar:'Facturé en garantie',nonfacturable:'Non facturable',cession:'Cession'};const fc={possible:'#00c896',facturegar:'#3498db',nonfacturable:'#ff4d6a',cession:'#f5a623'};return `<div style="margin-bottom:8px;"><strong style="color:var(--accent2);">${iv.letter||'•'}.</strong> ${iv.plainte||''}${iv.piece?' — '+iv.piece:''}${iv.montant?' ('+iv.montant+' €)':''}${iv.factu?` <span class="sbadge" style="background:${fc[iv.factu]}20;color:${fc[iv.factu]};border:1px solid ${fc[iv.factu]}40;">${fl[iv.factu]}</span>`:''}</div>`;}).join(''):(d.intervention||d.plainte||'—')}</div></div>
+    <div class="detail-row"><div class="detail-label">Statut contrôle</div><div class="detail-val">${(()=>{const dossierStatuts=GROUPE_DOSSIER.filter(k=>d[k]);return dossierStatuts.length?dossierStatuts.map(k=>`<span class="sbadge" style="background:${STATUT_COLORS[k]}20;color:${STATUT_COLORS[k]};border:1px solid ${STATUT_COLORS[k]}40;margin:2px;">${STATUT_LABELS[k]}</span>`).join(''):'Aucun';})()}</div></div>
+    <div class="detail-row" style="background:var(--bg2);border-radius:8px;padding:12px;margin:6px 0;display:block;">
+      <div class="detail-label" style="margin-bottom:8px;">Statut facturation <span style="font-size:10px;color:var(--text3);text-transform:none;">(après 2e contrôle)</span></div>
+      <div id="detail-factu-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;">
+        ${GROUPE_FACTURATION.filter(k=>k!=='temps').map(k=>`
+          <button type="button" id="df-${k}" onclick="toggleDetailFactu('${k}')" class="statut-toggle${d[k]?' active':''}" style="--kc:${STATUT_COLORS[k]};font-size:12px;padding:8px;">
+            <span class="tog-dot"></span>${STATUT_LABELS[k]}
+          </button>`).join('')}
+      </div>
+      <div style="margin-top:8px;">
+        <button type="button" id="df-temps" onclick="toggleDetailFactu('temps')" class="statut-toggle${d.temps?' active':''}" style="--kc:#2ecc71;font-size:12px;padding:8px;width:100%;">
+          <span class="tog-dot"></span>Temps de traitement supplémentaire
+        </button>
+      </div>
+      <div id="detail-raison-wrap" style="display:${d.temps?'block':'none'};margin-top:8px;">
+        <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px;">Raison du temps de traitement supplémentaire</label>
+        <textarea id="detail-raison" rows="2" style="width:100%;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px;" placeholder="Expliquer la raison...">${(d.raison_temps||'').replace(/</g,'&lt;')}</textarea>
+      </div>
+      <button class="btn primary" onclick="saveDetailFactu('${id}')" style="margin-top:10px;font-size:12px;padding:7px 16px;">💾 Enregistrer le statut facturation</button>
+    </div>
+    <div class="detail-row"><div class="detail-label">Défaut 1</div><div class="detail-val">${d.defaut1||'—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Défaut 2</div><div class="detail-val">${d.defaut2||'—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Correspondant</div><div class="detail-val">${d.correspondant||'—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Créé par</div><div class="detail-val">${d._createdBy||'—'}${d._ts?' · '+new Date(d._ts).toLocaleDateString('fr-FR'):''}</div></div>
+    ${d.delai?`<div class="detail-row"><div class="detail-label">Délai facturation</div><div class="detail-val" style="color:var(--warn);">${dateFR(d.delai)}</div></div>`:''}
+    ${d.commentaires?`<div class="detail-row"><div class="detail-label">Commentaires</div><div class="detail-val">${d.commentaires}</div></div>`:''}
+    ${d._modifiedBy?`<div class="detail-row"><div class="detail-label">Modifié par</div><div class="detail-val" style="color:var(--warn);">${d._modifiedBy} · ${new Date(d._modifiedTs).toLocaleString('fr-FR')}</div></div>`:''}
+  `;
+  document.getElementById('detail-foot').innerHTML=`
+    <button class="btn primary" onclick="editFromDetail('${id}')">✏ Modifier</button>
+    <button class="btn" onclick="printPDFFromDetail('${id}')" style="background:#1a3a5a;color:#7ec8e3;border-color:#7ec8e340;">🖨 Imprimer</button>
+    <button class="btn pdf" onclick="generatePDFFromDetail('${id}')">💾 PDF</button>
+    <button class="btn" onclick="sendMailFromDetail('${id}')" style="background:#2a1f0d;color:#e6a817;border-color:#e6a81740;">✉ Mail</button>
+    <button class="btn" onclick="deleteDetail('${id}')" style="color:var(--danger);border-color:var(--danger)40;">Supprimer</button>
+    <button class="btn" onclick="closeDetail()">Fermer</button>
+  `;
+  // Initialiser l'état du statut facturation depuis le dossier
+  _detailFactuState={};
+  GROUPE_FACTURATION.forEach(k=>{_detailFactuState[k]=!!d[k];});
+  document.getElementById('detail-modal').classList.add('open');
+};
+
+// ── ÉDITER depuis le détail ──
+window.editFromDetail=function(id){
+  const d=window._dossiers[id];
+  if(!d)return;
+  _editingDossierId=id;
+  closeDetail();
+  // Aller à l'onglet Nouveau, étape 2 directement
+  showTab('tab-new');
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='block';
+  document.getElementById('step1-ind').className='step done';
+  document.getElementById('step2-ind').className='step active';
+  document.getElementById('step3-ind').className='step';
+  // Remplir le formulaire
+  const setV=(fid,val)=>{const el=document.getElementById(fid);if(el)el.value=val||'';};
+  setV('f-nor',d.nor); setV('f-vin',d.vin); setV('f-modele',d.modele);
+  setV('f-km',d.kilometrage); setV('f-ccs',d.ccs); setV('f-tech1',d.tech1);
+  setV('f-date',d.date); setV('f-site',d.site);
+  setV('f-service',d.service); setV('f-correspondant',d.correspondant);
+  setV('f-typegar',d.typegar); setV('f-codedommage',d.codedommage); setV('f-delai',d.delai);
+  setV('f-commentaires',d.commentaires);
+  // Interventions
+  clearInterventions();
+  if(Array.isArray(d.interventions)&&d.interventions.length){
+    d.interventions.forEach(iv=>addIntervention(iv.plainte||'',iv.piece||'',iv.montant||'',iv.factu||''));
+  } else if(d.plainte||d.intervention){
+    addIntervention(d.plainte||'',d.intervention||'',d.montant||'');
+  } else {
+    addIntervention();
+  }
+  setV('f-relances',d.relances||'0'); setV('f-defaut1',d.defaut1);
+  setV('f-defaut2',d.defaut2); setV('f-heures',d.heures||'0');
+  // Statuts
+  Object.keys(_statuts).forEach(k=>{
+    _statuts[k]=!!d[k];
+    const btn=document.getElementById('tog-'+k);
+    if(btn){btn.classList.toggle('active',_statuts[k]);btn.classList.remove('disabled');}
+  });
+  applyExclusion();
+  updateMontantTotal();
+  toast('Mode modification — N°OR '+d.nor,'info');
+};
+
+window.closeDetail=function(){document.getElementById('detail-modal').classList.remove('open');};
+
+window.deleteDetail=function(id){
+  if(!confirm('Supprimer ce dossier ?'))return;
+  window._remove(window._ref(window._db,'controle_garantie/'+id));
+  closeDetail();toast('Supprimé','info');
+};
+
+// Charger un dossier dans le formulaire (pour PDF/impression depuis le détail)
+function loadDossierIntoForm(d){
+  document.getElementById('f-nor').value=d.nor||'';
+  document.getElementById('f-vin').value=d.vin||'';
+  document.getElementById('f-site').value=d.site||'';
+  document.getElementById('f-date').value=d.date||'';
+  document.getElementById('f-ccs').value=d.ccs||'';
+  document.getElementById('f-modele').value=d.modele||'';
+  document.getElementById('f-delai').value=d.delai||'';
+  document.getElementById('f-typegar').value=d.typegar||'';
+  document.getElementById('f-codedommage').value=d.codedommage||'';
+  document.getElementById('f-commentaires').value=d.commentaires||'';
+  clearInterventions();
+  if(Array.isArray(d.interventions)&&d.interventions.length){
+    d.interventions.forEach(iv=>addIntervention(iv.plainte||'',iv.piece||'',iv.montant||'',iv.factu||''));
+  } else if(d.plainte||d.intervention){
+    addIntervention(d.plainte||'',d.intervention||'',d.montant||'');
+  }
+  document.getElementById('f-defaut1').value=d.defaut1||'';
+  document.getElementById('f-defaut2').value=d.defaut2||'';
+  Object.keys(_statuts).forEach(k=>{_statuts[k]=!!d[k];});
+}
+
+window.generatePDFFromDetail=async function(id){
+  const d=window._dossiers[id];
+  if(!d)return;
+  loadDossierIntoForm(d);
+  await savePDF();
+};
+
+// ── EXPORT CSV ──
+window.exportCSV=function(){
+  const data=Object.values(window._dossiers);
+  const cols=['site','nor','vin','modele','ccs','montant','date','rattrapage','risque','malgre','annul','sauvee','incomplet','nonfact','temps','defaut1','defaut2','correspondant','_createdBy'];
+  const heads=['SITE','N°OR','VIN','MODELE','CCS','MONTANT','DATE','RATTRAPAGE','RISQUE','MALGRE','ANNUL','SAUVEE','INCOMPLET','NONFACT','TEMPS','DEFAUT1','DEFAUT2','CORRESPONDANT','CREE_PAR'];
+  const rows=[heads,...data.map(d=>cols.map(c=>d[c]??''))];
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download='controle-garantie-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+};
+
+// ── IMPORT EXCEL "Suivi Annulation-Rattrapage" ──
+// Mappe chaque ligne du tableau Excel vers un dossier de contrôle.
+window.importSuiviRattrapage=async function(file){
+  if(!file)return;
+  if(typeof XLSX==='undefined'){toast('Librairie Excel non chargée, rechargez la page','error');return;}
+  toast('Lecture du fichier Excel...','info');
+  try{
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:'array',cellDates:true});
+    // Trouver la feuille "Suivi Annulation-Rattrapage"
+    const sheetName=wb.SheetNames.find(n=>n.toLowerCase().includes('annulation')||n.toLowerCase().includes('rattrapage'))||wb.SheetNames[0];
+    const ws=wb.Sheets[sheetName];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
+
+    // Colonnes (0-indexées) : 0=SITE,1=OR,2=DGcession,3=type,4=CCS,5=tech1,6=tech2,7=service,8=intervention,9=heures,10=montant
+    // 11=rattrapage,12=risque,13=malgre,14=annul,15=sauvee,16=incomplet,17=retourconc,18=temps
+    // 19=relance,20=date,21=correspondant,22=defaut1,23=defaut2...
+    const SITES_VALIDES=Object.keys(SITE_KVPS);
+    const has=(v)=>v!==null&&v!==undefined&&String(v).trim()!=='';
+    const isX=(v)=>has(v)&&['x','X','oui','OUI','1','true'].includes(String(v).trim());
+
+    let importes=0,ignores=0;
+    const updates=[];
+
+    for(let i=2;i<rows.length;i++){ // ligne 0=titre, 1=en-têtes, données dès ligne 2
+      const r=rows[i];
+      if(!r)continue;
+      const site=(r[0]||'').toString().trim();
+      const nor=r[1]!=null?String(r[1]).trim():'';
+      if(!SITES_VALIDES.includes(site)||!nor){ignores++;continue;}
+
+      // Date → timestamp
+      let dateControle=Date.now();
+      if(r[20]){
+        const d=r[20] instanceof Date?r[20]:new Date(r[20]);
+        if(!isNaN(d))dateControle=d.getTime();
+      }
+      // Défauts (colonnes 22 à 29)
+      const defaut1=r[22]?String(r[22]).trim():'';
+      const defaut2=r[23]?String(r[23]).trim():'';
+
+      // Montant
+      let montant='';
+      if(has(r[10])){const m=parseFloat(String(r[10]).replace(',','.').replace(/[^\d.-]/g,''));if(!isNaN(m))montant=m.toFixed(2);}
+
+      const dossier={
+        site,nor,
+        vin:'',ccs:r[4]?String(r[4]).trim():'',
+        modele:'',
+        typegar:r[3]?String(r[3]).trim():'',
+        tech1:r[5]?String(r[5]).trim():'',
+        service:r[7]?String(r[7]).trim():'',
+        montant,
+        date:'',
+        correspondant:r[21]?String(r[21]).trim():'',
+        relances:has(r[19])?String(r[19]).trim():'',
+        defaut1,defaut2,
+        // Statuts (x → true)
+        rattrapage:isX(r[11]),
+        risque:isX(r[12]),
+        malgre:isX(r[13]),
+        annul:isX(r[14]),
+        sauvee:isX(r[15]),
+        incomplet:isX(r[16]),
+        retourconc:isX(r[17]),
+        temps:isX(r[18]),
+        _createdBy:'Import Excel',
+        _ts:dateControle,
+        dateControle,
+        _importedFrom:'suivi_rattrapage'
+      };
+      // Clé identique à la création manuelle (SITE_OR_xxx) → pas de doublon entre import et saisie
+      const norKey=String(nor).replace(/[.#$\[\]\/\s]/g,'_');
+      const siteKey=site.replace(/[.#$\[\]\/\s]/g,'_');
+      const fbKey=siteKey+'_OR_'+norKey;
+      // Ne pas écraser un dossier déjà saisi/traité par l'équipe (préserver l'existant)
+      const dejaExistant=window._dossiers&&window._dossiers[fbKey];
+      if(dejaExistant){ignores++;continue;}
+      if(window._db){
+        updates.push(window._set(window._ref(window._db,'controle_garantie/'+fbKey),dossier));
+      }
+      importes++;
+    }
+
+    await Promise.all(updates);
+    toast(`✓ ${importes} dossier(s) importé(s)${ignores?', '+ignores+' ligne(s) ignorée(s)':''}`,'success');
+    document.getElementById('import-suivi-file').value='';
+  }catch(err){
+    console.error('Erreur import:',err);
+    toast('Erreur import : '+err.message,'error');
+  }
+};
+
+// ── CLÉ API ANTHROPIC (partagée via Firebase, configurable par Omar uniquement) ──
+window.configureApiKey=function(){
+  // Seul Omar peut modifier la clé partagée
+  if(_currentUser!=='Omar'){
+    if(window._sharedApiKey){
+      toast('La clé API est gérée par Omar — déjà configurée ✓','info');
+    } else {
+      toast('La clé API doit être configurée par Omar','info');
+    }
+    return;
+  }
+  const current=getApiKey();
+  const msg=current
+    ?`Clé API partagée configurée (${current.slice(0,12)}...).\n\nElle est utilisée par toute l'équipe.\nEntrez une nouvelle clé pour la changer, ou laissez vide pour annuler :`
+    :'Entrez la clé API Anthropic (sk-ant-...).\nElle sera partagée avec toute l\'équipe TeamGarantie :';
+  const k=prompt(msg,current||'');
+  if(k===null)return;
+  if(k&&k.startsWith('sk-ant')){
+    // Sauvegarder dans Firebase (partagée)
+    window._set(window._ref(window._db,'config/anthropic_key'),k)
+      .then(()=>{toast('Clé API enregistrée pour toute l\'équipe ✓','success');})
+      .catch(err=>{toast('Erreur : '+err.message,'error');});
+  } else if(k===''){
+    window._set(window._ref(window._db,'config/anthropic_key'),'')
+      .then(()=>{toast('Clé API effacée','info');});
+  } else {
+    toast('Clé invalide (doit commencer par sk-ant-)','error');
+  }
+  setTimeout(updateApiStatus,500);
+};
+
+function updateApiStatus(){
+  const el=document.getElementById('api-status');
+  if(!el)return;
+  const key=getApiKey();
+  if(key){
+    el.textContent='🔑 API OK';
+    el.style.background='var(--bg3)';el.style.color='var(--accent)';
+    el.title=_currentUser==='Omar'?'Clé partagée active — cliquer pour modifier':'Clé partagée active (gérée par Omar)';
+  } else {
+    el.textContent='⚠ Clé API';
+    el.style.background='#f5ecd0';el.style.color='#a07000';
+    el.title=_currentUser==='Omar'?'Cliquer pour configurer la clé de l\'équipe':'En attente de configuration par Omar';
+  }
+}
+
+// ════════ AMÉLIORATIONS ════════
+
+// ── 2. BROUILLON AUTO ──
+let _draftTimer=null;
+function collectFormState(){
+  return {
+    nor:val('f-nor'),site:val('f-site'),vin:val('f-vin'),modele:val('f-modele'),
+    km:val('f-km'),ccs:val('f-ccs'),tech1:val('f-tech1'),typegar:val('f-typegar'),codedommage:val('f-codedommage'),date:val('f-date'),
+    service:val('f-service'),correspondant:val('f-correspondant'),relances:val('f-relances'),
+    defaut1:val('f-defaut1'),defaut2:val('f-defaut2'),heures:val('f-heures'),
+    delai:val('f-delai'),commentaires:val('f-commentaires'),
+    statuts:{..._statuts},
+    interventions:getInterventions(),
+    editingId:_editingDossierId,
+    ts:Date.now()
+  };
+}
+function val(id){const e=document.getElementById(id);return e?e.value:'';}
+
+function saveDraft(){
+  if(!_currentUser)return;
+  // Ne sauvegarder que si au moins un champ rempli
+  const st=collectFormState();
+  if(!st.nor&&!st.vin&&!st.ccs&&!st.interventions.length)return;
+  localStorage.setItem('gea_draft_'+_currentUser,JSON.stringify(st));
+  const ind=document.getElementById('draft-indicator');
+  if(ind){ind.textContent='✓ Brouillon sauvegardé';ind.style.opacity='1';clearTimeout(ind._t);ind._t=setTimeout(()=>ind.style.opacity='0',2000);}
+}
+function scheduleDraft(){clearTimeout(_draftTimer);_draftTimer=setTimeout(saveDraft,1500);}
+
+function checkDraft(){
+  if(!_currentUser)return;
+  try{
+    const d=JSON.parse(localStorage.getItem('gea_draft_'+_currentUser)||'null');
+    if(d&&(d.nor||d.vin||d.ccs||(d.interventions&&d.interventions.length))){
+      const when=new Date(d.ts).toLocaleString('fr-FR');
+      if(confirm(`Un brouillon non enregistré a été trouvé (${when}).\n\nN°OR: ${d.nor||'—'} · ${d.vin||'—'}\n\nVoulez-vous le restaurer ?`)){
+        restoreDraft(d);
+      } else {
+        clearDraft();
+      }
+    }
+  }catch(e){}
+}
+
+function restoreDraft(d){
+  const setV=(id,v)=>{const e=document.getElementById(id);if(e&&v){e.value=v;e.classList.add('filled');}};
+  setV('f-nor',d.nor);setV('f-site',d.site);setV('f-vin',d.vin);setV('f-modele',d.modele);
+  setV('f-km',d.km);setV('f-ccs',d.ccs);setV('f-tech1',d.tech1);setV('f-typegar',d.typegar);setV('f-codedommage',d.codedommage);setV('f-date',d.date);
+  setV('f-service',d.service);setV('f-correspondant',d.correspondant);setV('f-relances',d.relances);
+  setV('f-defaut1',d.defaut1);setV('f-defaut2',d.defaut2);setV('f-heures',d.heures);
+  setV('f-delai',d.delai);setV('f-commentaires',d.commentaires);
+  _editingDossierId=d.editingId||null;
+  clearInterventions();
+  if(d.interventions&&d.interventions.length){
+    d.interventions.forEach(iv=>addIntervention(iv.plainte||'',iv.piece||'',iv.montant||'',iv.factu||''));
+  } else { addIntervention(); }
+  if(d.statuts){
+    Object.keys(_statuts).forEach(k=>{
+      _statuts[k]=!!d.statuts[k];
+      const btn=document.getElementById('tog-'+k);
+      if(btn){btn.classList.toggle('active',_statuts[k]);btn.classList.remove('disabled');}
+    });
+    applyExclusion();
+  }
+  updateMontantTotal();
+  // Aller à l'étape 2
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='block';
+  document.getElementById('step1-ind').className='step done';
+  document.getElementById('step2-ind').className='step active';
+  toast('Brouillon restauré','success');
+}
+function clearDraft(){if(_currentUser)localStorage.removeItem('gea_draft_'+_currentUser);}
+
+// ── 4. VALIDATION VIN (17 caractères) ──
+function validateVIN(){
+  const el=document.getElementById('f-vin');
+  if(!el)return;
+  const vin=el.value.trim().toUpperCase();
+  const warn=document.getElementById('vin-warn');
+  if(vin&&vin.length!==17){
+    el.style.borderColor='var(--warn)';
+    if(warn){warn.style.display='block';warn.textContent=`⚠ Le VIN fait ${vin.length} caractères (attendu : 17)`;}
+  } else {
+    el.style.borderColor=vin?'#00c89640':'';
+    if(warn)warn.style.display='none';
+  }
+}
+
+// ── 5. DOUBLON TEMPS RÉEL ──
+function checkDuplicate(){
+  const nor=val('f-nor').trim();
+  const warn=document.getElementById('nor-warn');
+  if(!warn)return;
+  if(!nor){warn.style.display='none';return;}
+  const existant=Object.values(window._dossiers||{}).find(d=>(d.nor||'').trim()===nor);
+  if(existant&&!_editingDossierId){
+    warn.style.display='block';
+    warn.innerHTML=`⚠ Dossier déjà existant (créé par ${existant._createdBy||'?'}) — l'enregistrement le mettra à jour`;
+  } else {
+    warn.style.display='none';
+  }
+}
+
+// ── 6. COMPTEUR QUOTIDIEN ──
+function updateDailyCount(){
+  const badge=document.getElementById('daily-count');
+  if(!badge||!_currentUser)return;
+  const today=new Date();today.setHours(0,0,0,0);
+  const n=Object.values(window._dossiers||{}).filter(d=>d._createdBy===_currentUser&&d._ts>=today.getTime()).length;
+  badge.textContent=n+(n>1?' dossiers':' dossier')+" aujourd'hui";
+}
+
+// ── INDICATEUR CONNEXION FIREBASE ──
+function updateConnDot(){
+  const dot=document.querySelector('.user-dot');
+  if(dot) dot.style.background=window._db?'var(--success,#00c896)':'#ff4d6a';
+}
+
+// Brancher les écouteurs sur les champs (après chargement)
+(function bindEnhancements(){
+  setTimeout(()=>{
+    ['f-nor','f-site','f-vin','f-ccs','f-modele','f-km','f-date','f-defaut1','f-defaut2','f-commentaires','f-delai'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){el.addEventListener('input',scheduleDraft);el.addEventListener('change',scheduleDraft);}
+    });
+    const norEl=document.getElementById('f-nor');
+    if(norEl)norEl.addEventListener('input',checkDuplicate);
+    const vinEl=document.getElementById('f-vin');
+    if(vinEl)vinEl.addEventListener('input',validateVIN);
+  },500);
+})();
+
+// ── 9. CONFIRMATION AVANT DE QUITTER ──
+window.addEventListener('beforeunload',e=>{
+  if(!_currentUser)return;
+  const st=collectFormState();
+  const hasContent=st.nor||st.vin||st.ccs||(st.interventions&&st.interventions.length&&st.interventions.some(i=>i.plainte||i.piece));
+  // Seulement si le formulaire est visible (étape 2) et non vide
+  const step2Visible=document.getElementById('step2')&&document.getElementById('step2').style.display!=='none';
+  if(hasContent&&step2Visible){
+    e.preventDefault();
+    e.returnValue='';
+  }
+});
+
+window.toast=function(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='show '+type;
+  clearTimeout(t._t);t._t=setTimeout(()=>{t.className='';},3000);
+};
 </script>
 </body>
 </html>
